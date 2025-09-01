@@ -26,9 +26,9 @@ const Breadcrumb: React.FC<BreadcrumbProps> = ({
     : items;
 
   return (
-    <nav className={`py-4 px-4 ${className}`} aria-label="Breadcrumb">
+    <nav className={`py-6 px-6 bg-gradient-to-r from-green-100 to-emerald-50 ${className}`} aria-label="Breadcrumb">
       <div className="max-w-7xl mx-auto">
-        <ol className="flex items-center space-x-2 text-sm">
+        <ol className="flex items-center space-x-3 text-lg">
           {allItems.map((item, index) => {
             const isLast = index === allItems.length - 1;
             const isHome = item.route === 'home';
@@ -37,14 +37,14 @@ const Breadcrumb: React.FC<BreadcrumbProps> = ({
               <li key={item.label} className="flex items-center">
                 {/* Home Icon */}
                 {isHome && (
-                  <Home size={16} className="mr-1 text-gray-500" />
+                  <Home size={18} className="mr-2 text-yellow-800" />
                 )}
                 
                 {/* Breadcrumb Item */}
                 {item.route && !isLast ? (
                   <button
                     onClick={() => onNavigate(item.route!)}
-                    className="text-gray-500 hover:text-amber-600 transition-colors font-medium"
+                    className="text-gray-600 hover:text-amber-600 transition-colors font-semibold hover:bg-amber-50 px-3 py-1 rounded-lg"
                   >
                     {item.label}
                   </button>
@@ -52,8 +52,8 @@ const Breadcrumb: React.FC<BreadcrumbProps> = ({
                   <span 
                     className={`${
                       isLast 
-                        ? 'text-gray-900 font-semibold' 
-                        : 'text-gray-500'
+                        ? 'text-gray-900 font-bold bg-white px-3 py-1 rounded-lg shadow-sm border border-green-100' 
+                        : 'text-gray-600'
                     }`}
                   >
                     {item.label}
@@ -63,8 +63,8 @@ const Breadcrumb: React.FC<BreadcrumbProps> = ({
                 {/* Separator */}
                 {!isLast && (
                   <ChevronRight 
-                    size={16} 
-                    className="mx-2 text-gray-400" 
+                    size={18} 
+                    className="mx-3 text-gray-400" 
                   />
                 )}
               </li>

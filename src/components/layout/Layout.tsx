@@ -23,7 +23,7 @@ const Layout: React.FC<LayoutProps> = ({
   className = ''
 }) => {
   return (
-    <div className={`min-h-screen flex flex-col ${className}`}>
+    <div className={`min-h-screen flex flex-col bg-gradient-to-br from-green-100 via-green-50 to-emerald-50 ${className}`}>
       {/* Header */}
       {showHeader && (
         <Header 

@@ -19,13 +19,13 @@ const StarRating: React.FC<StarRatingProps> = ({
         size={size}
         className={`${
           i < Math.floor(rating) 
-            ? 'text-yellow-400 fill-current' 
+            ? 'text-amber-400 fill-current drop-shadow-sm' 
             : 'text-gray-300'
         }`}
       />
     ))}
     {showNumber && (
-      <span className="ml-2 text-sm text-gray-500">({rating})</span>
+      <span className="ml-2 text-sm text-gray-600 font-medium">({rating})</span>
     )}
   </div>
 );

@@ -7,15 +7,15 @@ interface SelectProps extends React.SelectHTMLAttributes<HTMLSelectElement> {
 }
 
 const Select: React.FC<SelectProps> = ({ label, error, options, className = '', ...props }) => (
-  <div className="mb-4">
+  <div className="mb-6">
     {label && (
-      <label className="block text-sm font-medium text-gray-700 mb-2">
+      <label className="block text-sm font-semibold text-gray-800 mb-2">
         {label} {props.required && <span className="text-red-500">*</span>}
       </label>
     )}
     <select
-      className={`w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent ${
-        error ? 'border-red-500' : 'border-gray-300'
+      className={`w-full border-2 border-yellow-700 rounded-xl px-4 py-3 text-gray-800 focus:outline-none focus:ring-4 focus:ring-yellow-300 focus:border-amber-800 transition-all duration-300 bg-white shadow-sm ${
+        error ? 'border-red-400' : 'hover:border-amber-700'
       } ${className}`}
       {...props}
     >
@@ -26,7 +26,7 @@ const Select: React.FC<SelectProps> = ({ label, error, options, className = '', 
         </option>
       ))}
     </select>
-    {error && <p className="mt-1 text-sm text-red-500">{error}</p>}
+    {error && <p className="mt-2 text-sm text-red-600 font-medium">{error}</p>}
   </div>
 );
 

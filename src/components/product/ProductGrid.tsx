@@ -15,12 +15,15 @@ const ProductGrid: React.FC<ProductGridProps> = ({
   title,
   className = ''
 }) => (
-  <section className={`py-16 px-4 ${className}`}>
+  <section className={`py-20 px-6 ${className}`}>
     <div className="max-w-7xl mx-auto">
       {title && (
-        <h3 className="text-3xl font-bold text-center text-gray-900 mb-12">
-          {title}
-        </h3>
+        <div className="text-center mb-16">
+          <h3 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-yellow-800 via-amber-800 to-yellow-900 bg-clip-text text-transparent mb-4">
+            {title}
+          </h3>
+          <div className="w-24 h-1 bg-gradient-to-r from-yellow-800 to-amber-900 mx-auto rounded-full" />
+        </div>
       )}
       
       {products.length === 0 ? (

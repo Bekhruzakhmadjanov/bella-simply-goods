@@ -13,18 +13,19 @@ const Button: React.FC<ButtonProps> = ({
   className = '', 
   ...props 
 }) => {
-  const baseClasses = 'font-semibold rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed';
+  const baseClasses = 'font-semibold rounded-xl transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl transform hover:-translate-y-0.5';
   
   const variants = {
-    primary: 'bg-emerald-500 hover:bg-emerald-600 text-white focus:ring-amber-500',
-    secondary: 'bg-gray-200 hover:bg-gray-300 text-gray-900 focus:ring-gray-500',
-    outline: 'border-2 border-amber-600 text-amber-600 hover:bg-amber-600 hover:text-white focus:ring-amber-500'
+    // Olive green (brown-green mix) integration
+    primary: 'bg-gradient-to-r from-yellow-800 via-amber-900 to-yellow-900 hover:from-amber-900 hover:via-yellow-900 hover:to-orange-900 text-white focus:ring-yellow-600 shadow-amber-400',
+    secondary: 'bg-gradient-to-r from-amber-600 via-amber-700 to-yellow-700 hover:from-amber-700 hover:via-amber-800 hover:to-yellow-800 text-white focus:ring-amber-300 shadow-amber-200',
+    outline: 'border-2 border-yellow-800 text-yellow-800 hover:bg-yellow-800 hover:text-white focus:ring-yellow-600 bg-white'
   };
 
   const sizes = {
-    small: 'px-3 py-1.5 text-sm',
-    medium: 'px-4 py-2',
-    large: 'px-6 py-3 text-lg'
+    small: 'px-4 py-2 text-sm',
+    medium: 'px-6 py-3',
+    large: 'px-8 py-4 text-lg'
   };
 
   return (

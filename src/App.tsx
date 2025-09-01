@@ -13,6 +13,7 @@ import { PRODUCTS } from './data/products';
 import { US_STATES } from './data/states';
 
 // Utils and Hooks
+
 import { formatCurrency, generateOrderNumber } from './utils/calculations';
 import { useCart } from './hooks/useCart';
 import { useFormValidation } from './hooks/useFormValidation';
@@ -55,31 +56,39 @@ const HomePage: React.FC<{ onAddToCart: (product: Product) => void }> = ({ onAdd
       />
     </div>
 
-    {/* About Section */}
-    <section className="py-20 px-4 bg-white">
-      <div className="max-w-4xl mx-auto text-center">
-        <h3 className="text-3xl font-light text-gray-900 mb-12 tracking-tight">Why Choose Bella Simply Goods?</h3>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
-          <div className="text-center">
-            <div className="w-16 h-16 bg-sky-100 rounded-full flex items-center justify-center mx-auto mb-6">
-              <CheckCircle className="text-sky-600" size={28} />
+    {/* About Section - Modern Olive (Brown-Green Mix) & Chocolate Design */}
+    <section className="py-24 px-6 bg-gradient-to-r from-amber-100 via-yellow-50 to-amber-100">
+      <div className="max-w-6xl mx-auto text-center">
+        <div className="mb-16">
+          <h3 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-yellow-800 via-amber-800 to-yellow-900 bg-clip-text text-transparent mb-4">
+            Why Choose Bella Simply Goods?
+          </h3>
+          <div className="w-24 h-1 bg-gradient-to-r from-yellow-800 to-amber-900 mx-auto rounded-full"></div>
+        </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
+          <div className="text-center p-8 bg-white rounded-2xl shadow-xl border-2 border-yellow-300 transform hover:scale-105 transition-all duration-300">
+            <div className="w-20 h-20 bg-gradient-to-r from-yellow-200 to-amber-300 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg">
+              <CheckCircle className="text-yellow-800" size={32} />
             </div>
-            <h4 className="text-xl font-medium mb-4 text-gray-900">Authentic Recipe</h4>
-            <p className="text-gray-600 leading-relaxed">Made with the original Dubai chocolate recipe using traditional techniques and premium ingredients.</p>
+            <h4 className="text-2xl font-bold mb-4 text-gray-900">Authentic Recipe</h4>
+            <p className="text-gray-600 leading-relaxed text-lg">Made with the original Dubai chocolate recipe using traditional techniques and premium ingredients.</p>
           </div>
-          <div className="text-center">
-            <div className="w-16 h-16 bg-pink-100 rounded-full flex items-center justify-center mx-auto mb-6">
-              <Clock className="text-pink-600" size={28} />
+          
+          <div className="text-center p-8 bg-white rounded-2xl shadow-xl border-2 border-yellow-300 transform hover:scale-105 transition-all duration-300">
+            <div className="w-20 h-20 bg-gradient-to-r from-amber-100 to-yellow-100 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg">
+              <Clock className="text-amber-600" size={32} />
             </div>
-            <h4 className="text-xl font-medium mb-4 text-gray-900">Fresh Daily</h4>
-            <p className="text-gray-600 leading-relaxed">Every piece is handcrafted fresh daily in small batches to ensure maximum quality and taste.</p>
+            <h4 className="text-2xl font-bold mb-4 text-gray-900">Fresh Daily</h4>
+            <p className="text-gray-600 leading-relaxed text-lg">Every piece is handcrafted fresh daily in small batches to ensure maximum quality and taste.</p>
           </div>
-          <div className="text-center">
-            <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
-              <MapPin className="text-gray-700" size={28} />
+          
+          <div className="text-center p-8 bg-white rounded-2xl shadow-xl border-2 border-yellow-300 transform hover:scale-105 transition-all duration-300">
+            <div className="w-20 h-20 bg-gradient-to-r from-gray-100 to-gray-200 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg">
+              <MapPin className="text-gray-700" size={32} />
             </div>
-            <h4 className="text-xl font-medium mb-4 text-gray-900">USA Delivery</h4>
-            <p className="text-gray-600 leading-relaxed">Fast and secure shipping nationwide with temperature-controlled packaging to preserve freshness.</p>
+            <h4 className="text-2xl font-bold mb-4 text-gray-900">USA Delivery</h4>
+            <p className="text-gray-600 leading-relaxed text-lg">Fast and secure shipping nationwide with temperature-controlled packaging to preserve freshness.</p>
           </div>
         </div>
       </div>

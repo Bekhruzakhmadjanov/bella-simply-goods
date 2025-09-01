@@ -15,24 +15,24 @@ const CartEmpty: React.FC<CartEmptyProps> = ({
   subtitle = "Add some delicious Dubai chocolate to get started!",
   buttonText = "Continue Shopping"
 }) => (
-  <div className="text-center py-16">
+  <div className="text-center py-20">
     <div className="max-w-md mx-auto">
       {/* Empty Cart Icon */}
-      <div className="mb-6">
+      <div className="mb-8">
         <ShoppingCart 
-          size={80} 
-          className="mx-auto text-gray-300 mb-4" 
+          size={100} 
+          className="mx-auto text-gray-300 mb-6" 
           strokeWidth={1}
         />
       </div>
 
       {/* Title */}
-      <h2 className="text-2xl font-semibold text-gray-600 mb-2">
+      <h2 className="text-3xl font-bold text-gray-700 mb-4">
         {title}
       </h2>
 
       {/* Subtitle */}
-      <p className="text-gray-500 mb-8 leading-relaxed">
+      <p className="text-gray-500 mb-10 leading-relaxed text-lg">
         {subtitle}
       </p>
 
@@ -42,15 +42,15 @@ const CartEmpty: React.FC<CartEmptyProps> = ({
         size="large"
         className="inline-flex items-center"
       >
-        <ArrowLeft size={20} className="mr-2" />
+        <ArrowLeft size={20} className="mr-3" />
         {buttonText}
       </Button>
 
       {/* Additional Info */}
-      <div className="mt-8 text-sm text-gray-400">
-        <p>🍫 Fresh handmade Dubai chocolate</p>
-        <p>🚚 Free shipping on orders over $50</p>
-        <p>📦 Same-day processing</p>
+      <div className="mt-12 text-sm text-gray-400 space-y-2">
+        <p>Fresh handmade Dubai chocolate</p>
+        <p>Free shipping on orders over $50</p>
+        <p>Same-day processing</p>
       </div>
     </div>
   </div>
