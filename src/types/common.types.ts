@@ -1,4 +1,4 @@
-export type Route = 'home' | 'cart' | 'checkout' | 'tracking' | 'confirmation';
+export type Route = 'home' | 'products' | 'cart' | 'checkout' | 'tracking' | 'confirmation';
 
 export interface State {
   code: string;

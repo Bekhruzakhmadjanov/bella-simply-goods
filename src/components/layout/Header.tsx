@@ -19,6 +19,7 @@ const Header: React.FC<HeaderProps> = ({
 
   const navigationItems = [
     { route: 'home' as Route, label: 'Home' },
+    { route: 'products' as Route, label: 'Products' },
     { route: 'tracking' as Route, label: 'Track Order' },
   ];
 

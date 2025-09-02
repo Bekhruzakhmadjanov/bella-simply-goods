@@ -6,6 +6,6 @@ export interface Product {
   image: string;
   rating: number;
   popular: boolean;
-  category?: string;
+  category: string;
   inStock?: boolean;
 }

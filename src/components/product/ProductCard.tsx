@@ -35,7 +35,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart }) => (
       )}
     </div>
     <div className="p-6">
-      <h4 className="text-xl font-bold text-gray-800 mb-2">{product.name}</h4>
+      <h4 className="text-xl font-bold text-gray-800 mb-2 line-clamp-2 min-h-[3rem] leading-6">{product.name}</h4>
       <p className="text-gray-600 text-sm mb-4 leading-relaxed">{product.description}</p>
       <StarRating rating={product.rating} />
       <div className="flex items-center justify-between mt-6">
