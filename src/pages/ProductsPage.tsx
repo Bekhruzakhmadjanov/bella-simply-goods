@@ -151,26 +151,27 @@ const ProductsPage: React.FC<ProductsPageProps> = ({ onAddToCart, onNavigate }) 
         </div>
       </section>
 
-      {/* Filters and Sort */}
-      <section className="py-8 px-6 bg-white border-b-2 border-yellow-200">
+      {/* UPDATED Filters and Sort Section */}
+      <section className="py-4 px-6 bg-white border-b border-gray-200 sticky top-0 z-10 shadow-sm">
         <div className="max-w-7xl mx-auto">
-          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+          <div className="space-y-4">
             
-            {/* Category Filters */}
-            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
-              <div className="flex items-center gap-3">
+            {/* Filter Row */}
+            <div className="flex flex-col lg:flex-row lg:items-center gap-4">
+              <div className="flex items-center gap-3 flex-shrink-0">
                 <Filter className="text-yellow-800" size={20} />
-                <span className="font-semibold text-gray-800">Filter by:</span>
+                <span className="font-semibold text-gray-800 text-sm whitespace-nowrap">Filter by:</span>
               </div>
+              
               <div className="flex flex-wrap gap-2">
                 {categories.map(category => (
                   <button
                     key={category}
                     onClick={() => setSelectedCategory(category)}
-                    className={`px-4 py-2 rounded-xl font-medium transition-all duration-300 ${
+                    className={`px-3 py-2 rounded-lg font-medium text-sm transition-all duration-300 whitespace-nowrap ${
                       selectedCategory === category
-                        ? 'bg-yellow-800 text-white shadow-lg'
-                        : 'bg-yellow-100 text-yellow-800 hover:bg-yellow-200'
+                        ? 'bg-yellow-800 text-white shadow-md'
+                        : 'bg-gray-100 text-gray-700 hover:bg-yellow-100 hover:text-yellow-800 border border-gray-200'
                     }`}
                   >
                     {category}
@@ -179,30 +180,62 @@ const ProductsPage: React.FC<ProductsPageProps> = ({ onAddToCart, onNavigate }) 
               </div>
             </div>
 
-            {/* Sort Options */}
-            <div className="flex items-center gap-4">
-              <span className="font-semibold text-gray-800">Sort by:</span>
-              <select
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value)}
-                className="border-2 border-yellow-700 rounded-xl px-4 py-2 bg-white focus:outline-none focus:ring-4 focus:ring-yellow-300 focus:border-amber-800"
-              >
-                <option value="name">Name (A-Z)</option>
-                <option value="price-low">Price (Low to High)</option>
-                <option value="price-high">Price (High to Low)</option>
-                <option value="rating">Rating (Highest First)</option>
-                <option value="popularity">Most Popular</option>
-              </select>
-            </div>
-          </div>
+            {/* Sort and Results Row */}
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pt-2 border-t border-gray-100">
+              {/* Results Count */}
+              <div className="text-sm text-gray-600">
+                <span className="font-medium">
+                  Showing {sortedProducts.length} of {ALL_PRODUCTS.length} products
+                </span>
+                {selectedCategory !== 'All' && (
+                  <span className="ml-2 text-yellow-800 font-medium">
+                    in "{selectedCategory}"
+                  </span>
+                )}
+              </div>
 
-          {/* Results Count */}
-          <div className="mt-6 text-gray-600">
-            Showing {sortedProducts.length} of {ALL_PRODUCTS.length} products
+              {/* Sort Options */}
+              <div className="flex items-center gap-3">
+                <span className="font-semibold text-gray-800 text-sm whitespace-nowrap">Sort by:</span>
+                <select
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value)}
+                  className="border border-gray-300 rounded-lg px-3 py-2 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 min-w-[140px]"
+                >
+                  <option value="name">Name (A-Z)</option>
+                  <option value="price-low">Price (Low to High)</option>
+                  <option value="price-high">Price (High to Low)</option>
+                  <option value="rating">Rating (Highest First)</option>
+                  <option value="popularity">Most Popular</option>
+                </select>
+              </div>
+            </div>
+
+            {/* Active Filters (if category is selected) */}
             {selectedCategory !== 'All' && (
-              <span className="ml-2">
-                in <span className="font-semibold text-yellow-800">{selectedCategory}</span>
-              </span>
+              <div className="flex items-center gap-3">
+                <span className="text-sm text-gray-600 font-medium">Active:</span>
+                <div className="flex items-center gap-2">
+                  <span className="inline-flex items-center gap-2 bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-sm font-medium">
+                    {selectedCategory}
+                    <button
+                      onClick={() => setSelectedCategory('All')}
+                      className="hover:bg-yellow-200 rounded-full p-0.5 transition-colors"
+                      aria-label="Remove filter"
+                    >
+                      <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                      </svg>
+                    </button>
+                  </span>
+                  <button
+                    onClick={() => setSelectedCategory('All')}
+                    className="text-xs text-gray-500 hover:text-gray-700 underline"
+                  >
+                    Clear
+                  </button>
+                </div>
+              </div>
             )}
           </div>
         </div>
