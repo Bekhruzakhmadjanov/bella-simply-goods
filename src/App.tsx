@@ -1,15 +1,17 @@
 import React, { useState, useCallback } from 'react';
+import { BrowserRouter as Router, Routes, Route, useNavigate, useLocation } from 'react-router-dom';
 import { ArrowLeft, CheckCircle, Clock, MapPin, Package, Truck, Home as HomeIcon, Filter, ArrowRight } from 'lucide-react';
 
 // Types
-import type { Route } from './types/common.types';
+import type { Route as AppRoute } from './types/common.types';
 import type { Product } from './types/product.types';
 import type { CartItem, CartTotals } from './types/cart.types';
 import type { Order, ShippingAddress, OrderStatus } from './types/order.types';
+import type { ProductFormData, OrderUpdateData } from './types/admin.types';
 
 // Constants and Data
-import { ROUTES } from './constants/routes';
 import { US_STATES } from './data/states';
+import { ALL_PRODUCTS, FEATURED_PRODUCTS } from './data/products';
 
 // Utils and Hooks
 import { formatCurrency, generateOrderNumber } from './utils/calculations';
@@ -35,110 +37,47 @@ import { CartItem as CartItemComponent } from './components/cart/CartItem';
 import { CartSummary } from './components/cart/CartSummary';
 import { CartEmpty } from './components/cart/CartEmpty';
 
-// All products data
-const ALL_PRODUCTS: Product[] = [
-  {
-    id: 1,
-    name: "Dubai chocolate, Pistachio chocolate, Knafeh milk chocolate",
-    description: "Rich milk chocolate filled with crispy kataifi and premium pistachio cream",
-    price: 24.99,
-    image: "https://images.unsplash.com/photo-1606312619070-d48b4c652a52?w=400&h=400&fit=crop",
-    rating: 5,
-    popular: true,
-    inStock: true,
-    category: "Milk Chocolate"
-  },
-  {
-    id: 2,
-    name: "Dubai chocolate, Pistachio chocolate, Knafeh dark chocolate",
-    description: "70% dark chocolate with roasted pistachios and honey-infused kataifi",
-    price: 27.99,
-    image: "https://images.unsplash.com/photo-1578849278619-e73505e9610f?w=400&h=400&fit=crop",
-    rating: 5,
-    popular: false,
-    inStock: true,
-    category: "Dark Chocolate"
-  },
-  {
-    id: 3,
-    name: "Dubai chocolate, Pistachio chocolate, Knafeh white chocolate",
-    description: "Creamy white chocolate with candied pistachios and vanilla kataifi",
-    price: 26.99,
-    image: "https://images.unsplash.com/photo-1511381939415-e44015466834?w=400&h=400&fit=crop",
-    rating: 4.9,
-    popular: false,
-    inStock: true,
-    category: "White Chocolate"
-  },
-  {
-    id: 4,
-    name: "Homemade Heart Shape Dubai Pistachio with Knafeh Milk Chocolate 6 piece with Gift Wrap",
-    description: "Six heart-shaped milk chocolate pieces with pistachio and kataifi, beautifully gift wrapped - perfect for special occasions",
-    price: 45.99,
-    image: "https://images.unsplash.com/photo-1549007994-cb92caebd54b?w=400&h=400&fit=crop",
-    rating: 5,
-    popular: true,
-    inStock: true,
-    category: "Gift Sets"
-  },
-  {
-    id: 5,
-    name: "DUBAI chocolate \"Original\" 1 single bar milk chocolate",
-    description: "Get a taste of Original Dubai Chocolate - single milk chocolate bar perfect for trying our authentic recipe",
-    price: 12.99,
-    image: "https://images.unsplash.com/photo-1606312619070-d48b4c652a52?w=400&h=400&fit=crop",
-    rating: 4.8,
-    popular: true,
-    inStock: true,
-    category: "Single Bars"
-  },
-  {
-    id: 6,
-    name: "DUBAI chocolate \"Original\" 1 single bar dark chocolate",
-    description: "Get a taste of Original Dubai Chocolate - single dark chocolate bar perfect for trying our authentic recipe",
-    price: 12.99,
-    image: "https://images.unsplash.com/photo-1578849278619-e73505e9610f?w=400&h=400&fit=crop",
-    rating: 4.8,
-    popular: false,
-    inStock: true,
-    category: "Single Bars"
-  },
-  {
-    id: 7,
-    name: "Dubai chocolate Original size. Pistachio Knafeh chocolate bar",
-    description: "Only ONE Bar of Chocolate - original size Dubai chocolate bar with pistachio and kataifi filling",
-    price: 18.99,
-    image: "https://images.unsplash.com/photo-1606312619070-d48b4c652a52?w=400&h=400&fit=crop",
-    rating: 4.9,
-    popular: false,
-    inStock: true,
-    category: "Original Size"
-  },
-  {
-    id: 8,
-    name: "DUBAI CHOCOLATE FILLING",
-    description: "Sweet, Crunchy and Buttery Taste - 1x Jar 13oz of our signature Dubai chocolate filling",
-    price: 32.99,
-    image: "https://images.unsplash.com/photo-1558961363-fa8fdf82db35?w=400&h=400&fit=crop",
-    rating: 4.7,
-    popular: false,
-    inStock: true,
-    category: "Fillings"
-  }
-];
+// Admin Components
+import { AdminApp } from './components/admin/AdminApp';
 
-// Featured products for homepage (only these 4)
-const FEATURED_PRODUCTS = [
-  ALL_PRODUCTS[0], // Dubai chocolate, Pistachio chocolate, Knafeh milk chocolate
-  ALL_PRODUCTS[1], // Dubai chocolate, Pistachio chocolate, Knafeh dark chocolate
-  ALL_PRODUCTS[3], // Homemade Heart Shape Dubai Pistachio with Knafeh Milk Chocolate 6 piece with Gift Wrap
-  ALL_PRODUCTS[4], // DUBAI chocolate "Original" 1 single bar milk chocolate
-];
+// Navigation hook that syncs with router
+const useAppNavigation = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const navigateTo = useCallback((route: AppRoute | 'admin') => {
+    const pathMap = {
+      home: '/',
+      products: '/products',
+      cart: '/cart',
+      checkout: '/checkout',
+      tracking: '/tracking',
+      confirmation: '/confirmation',
+      admin: '/admin'
+    };
+    navigate(pathMap[route] || '/');
+  }, [navigate]);
+
+  const getCurrentRoute = (): AppRoute | 'admin' => {
+    const routeMap: Record<string, AppRoute | 'admin'> = {
+      '/': 'home',
+      '/products': 'products',
+      '/cart': 'cart',
+      '/checkout': 'checkout',
+      '/tracking': 'tracking',
+      '/confirmation': 'confirmation',
+      '/admin': 'admin'
+    };
+    return routeMap[location.pathname] || 'home';
+  };
+
+  return { navigateTo, currentRoute: getCurrentRoute() };
+};
 
 // Page Components
 const HomePage: React.FC<{ 
   onAddToCart: (product: Product) => void;
-  onNavigate: (route: Route) => void;
+  onNavigate: (route: AppRoute | 'admin') => void;
 }> = ({ onAddToCart, onNavigate }) => (
   <div>
     <Hero 
@@ -211,19 +150,20 @@ const HomePage: React.FC<{
 );
 
 const ProductsPage: React.FC<{
+  products: Product[];
   onAddToCart: (product: Product) => void;
-  onNavigate: (route: Route) => void;
-}> = ({ onAddToCart, onNavigate }) => {
+  onNavigate: (route: AppRoute | 'admin') => void;
+}> = ({ products, onAddToCart, onNavigate }) => {
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
   const [sortBy, setSortBy] = useState<string>('name');
 
   // Get unique categories
-  const categories = ['All', ...Array.from(new Set(ALL_PRODUCTS.map(p => p.category).filter(Boolean)))];
+  const categories = ['All', ...Array.from(new Set(products.map(p => p.category).filter(Boolean)))];
 
   // Filter products by category
   const filteredProducts = selectedCategory === 'All' 
-    ? ALL_PRODUCTS 
-    : ALL_PRODUCTS.filter(product => product.category === selectedCategory);
+    ? products 
+    : products.filter(product => product.category === selectedCategory);
 
   // Sort products
   const sortedProducts = [...filteredProducts].sort((a, b) => {
@@ -262,26 +202,27 @@ const ProductsPage: React.FC<{
         </div>
       </section>
 
-      {/* Filters and Sort */}
-      <section className="py-8 px-6 bg-white border-b-2 border-yellow-200">
+      {/* Filters and Sort Section */}
+      <section className="py-4 px-6 bg-white border-b border-gray-200 sticky top-0 z-10 shadow-sm">
         <div className="max-w-7xl mx-auto">
-          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+          <div className="space-y-4">
             
-            {/* Category Filters */}
-            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
-              <div className="flex items-center gap-3">
+            {/* Filter Row */}
+            <div className="flex flex-col lg:flex-row lg:items-center gap-4">
+              <div className="flex items-center gap-3 flex-shrink-0">
                 <Filter className="text-yellow-800" size={20} />
-                <span className="font-semibold text-gray-800">Filter by:</span>
+                <span className="font-semibold text-gray-800 text-sm whitespace-nowrap">Filter by:</span>
               </div>
+              
               <div className="flex flex-wrap gap-2">
                 {categories.map(category => (
                   <button
                     key={category}
                     onClick={() => setSelectedCategory(category)}
-                    className={`px-4 py-2 rounded-xl font-medium transition-all duration-300 ${
+                    className={`px-3 py-2 rounded-lg font-medium text-sm transition-all duration-300 whitespace-nowrap ${
                       selectedCategory === category
-                        ? 'bg-yellow-800 text-white shadow-lg'
-                        : 'bg-yellow-100 text-yellow-800 hover:bg-yellow-200'
+                        ? 'bg-yellow-800 text-white shadow-md'
+                        : 'bg-gray-100 text-gray-700 hover:bg-yellow-100 hover:text-yellow-800 border border-gray-200'
                     }`}
                   >
                     {category}
@@ -290,30 +231,62 @@ const ProductsPage: React.FC<{
               </div>
             </div>
 
-            {/* Sort Options */}
-            <div className="flex items-center gap-4">
-              <span className="font-semibold text-gray-800">Sort by:</span>
-              <select
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value)}
-                className="border-2 border-yellow-700 rounded-xl px-4 py-2 bg-white focus:outline-none focus:ring-4 focus:ring-yellow-300 focus:border-amber-800"
-              >
-                <option value="name">Name (A-Z)</option>
-                <option value="price-low">Price (Low to High)</option>
-                <option value="price-high">Price (High to Low)</option>
-                <option value="rating">Rating (Highest First)</option>
-                <option value="popularity">Most Popular</option>
-              </select>
-            </div>
-          </div>
+            {/* Sort and Results Row */}
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pt-2 border-t border-gray-100">
+              {/* Results Count */}
+              <div className="text-sm text-gray-600">
+                <span className="font-medium">
+                  Showing {sortedProducts.length} of {products.length} products
+                </span>
+                {selectedCategory !== 'All' && (
+                  <span className="ml-2 text-yellow-800 font-medium">
+                    in "{selectedCategory}"
+                  </span>
+                )}
+              </div>
 
-          {/* Results Count */}
-          <div className="mt-6 text-gray-600">
-            Showing {sortedProducts.length} of {ALL_PRODUCTS.length} products
+              {/* Sort Options */}
+              <div className="flex items-center gap-3">
+                <span className="font-semibold text-gray-800 text-sm whitespace-nowrap">Sort by:</span>
+                <select
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value)}
+                  className="border border-gray-300 rounded-lg px-3 py-2 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 min-w-[140px]"
+                >
+                  <option value="name">Name (A-Z)</option>
+                  <option value="price-low">Price (Low to High)</option>
+                  <option value="price-high">Price (High to Low)</option>
+                  <option value="rating">Rating (Highest First)</option>
+                  <option value="popularity">Most Popular</option>
+                </select>
+              </div>
+            </div>
+
+            {/* Active Filters */}
             {selectedCategory !== 'All' && (
-              <span className="ml-2">
-                in <span className="font-semibold text-yellow-800">{selectedCategory}</span>
-              </span>
+              <div className="flex items-center gap-3">
+                <span className="text-sm text-gray-600 font-medium">Active:</span>
+                <div className="flex items-center gap-2">
+                  <span className="inline-flex items-center gap-2 bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-sm font-medium">
+                    {selectedCategory}
+                    <button
+                      onClick={() => setSelectedCategory('All')}
+                      className="hover:bg-yellow-200 rounded-full p-0.5 transition-colors"
+                      aria-label="Remove filter"
+                    >
+                      <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                      </svg>
+                    </button>
+                  </span>
+                  <button
+                    onClick={() => setSelectedCategory('All')}
+                    className="text-xs text-gray-500 hover:text-gray-700 underline"
+                  >
+                    Clear
+                  </button>
+                </div>
+              </div>
             )}
           </div>
         </div>
@@ -356,11 +329,9 @@ const ProductsPage: React.FC<{
                       </div>
                     )}
                     
-                    {product.category && (
-                      <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm px-2 py-1 rounded-full text-xs font-medium text-yellow-800">
-                        {product.category}
-                      </div>
-                    )}
+                    <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm px-2 py-1 rounded-full text-xs font-medium text-yellow-800">
+                      {product.category}
+                    </div>
                   </div>
                   
                   <div className="p-6">
@@ -417,7 +388,7 @@ const ProductsPage: React.FC<{
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button 
               onClick={() => {
-                const giftSet = ALL_PRODUCTS.find(p => p.category === 'Gift Sets');
+                const giftSet = products.find(p => p.category === 'Gift Sets');
                 if (giftSet) onAddToCart(giftSet);
               }}
               size="large"
@@ -426,7 +397,7 @@ const ProductsPage: React.FC<{
             </Button>
             <Button 
               onClick={() => {
-                const singleBar = ALL_PRODUCTS.find(p => p.category === 'Single Bars');
+                const singleBar = products.find(p => p.category === 'Single Bars');
                 if (singleBar) onAddToCart(singleBar);
               }}
               variant="outline"
@@ -446,7 +417,7 @@ const CartPage: React.FC<{
   totals: CartTotals;
   onUpdateQuantity: (id: number, quantity: number) => void;
   onRemoveItem: (id: number) => void;
-  onNavigate: (route: Route) => void;
+  onNavigate: (route: AppRoute | 'admin') => void;
 }> = ({ cart, totals, onUpdateQuantity, onRemoveItem, onNavigate }) => (
   <div className="min-h-screen bg-gray-50">
     <Breadcrumb 
@@ -488,7 +459,7 @@ const CartPage: React.FC<{
 const CheckoutPage: React.FC<{
   cart: CartItem[];
   totals: CartTotals;
-  onNavigate: (route: Route) => void;
+  onNavigate: (route: AppRoute | 'admin') => void;
   onPlaceOrder: (shippingAddress: ShippingAddress) => void;
 }> = ({ cart, totals, onNavigate, onPlaceOrder }) => {
   const { values: formData, errors, updateValue, validateRequired } = useFormValidation({
@@ -702,7 +673,7 @@ const CheckoutPage: React.FC<{
   );
 };
 
-const TrackingPage: React.FC<{ onNavigate: (route: Route) => void }> = ({ onNavigate }) => {
+const TrackingPage: React.FC<{ onNavigate: (route: AppRoute | 'admin') => void }> = ({ onNavigate }) => {
   const [trackingInput, setTrackingInput] = useState('');
   const [trackingResult, setTrackingResult] = useState<Order | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -817,7 +788,7 @@ const TrackingPage: React.FC<{ onNavigate: (route: Route) => void }> = ({ onNavi
 
 const ConfirmationPage: React.FC<{ 
   order: Order | null; 
-  onNavigate: (route: Route) => void;
+  onNavigate: (route: AppRoute | 'admin') => void;
 }> = ({ order, onNavigate }) => {
   if (!order) {
     return (
@@ -871,11 +842,15 @@ const ConfirmationPage: React.FC<{
   );
 };
 
-// Main App Component
-const App: React.FC = () => {
-  const [currentRoute, setCurrentRoute] = useState<Route>(ROUTES.HOME);
+// Main App Content Component
+const AppContent: React.FC = () => {
+  const { navigateTo, currentRoute } = useAppNavigation();
   const [currentOrder, setCurrentOrder] = useState<Order | null>(null);
   
+  // Product state for admin management
+  const [products, setProducts] = useState<Product[]>(ALL_PRODUCTS);
+  const [orders, setOrders] = useState<Order[]>([]);
+
   const {
     cart,
     addToCart,
@@ -894,6 +869,32 @@ const App: React.FC = () => {
 
   const totals: CartTotals = { subtotal, tax, shipping, total };
 
+  // Admin product management functions
+  const handleAddProduct = useCallback((productData: ProductFormData) => {
+    const newProduct: Product = {
+      id: Math.max(...products.map(p => p.id)) + 1,
+      ...productData,
+      rating: productData.rating ?? 5.0
+    };
+    setProducts(prev => [...prev, newProduct]);
+  }, [products]);
+
+  const handleUpdateProduct = useCallback((id: number, productData: ProductFormData) => {
+    setProducts(prev => prev.map(product => 
+      product.id === id ? { ...product, ...productData } : product
+    ));
+  }, []);
+
+  const handleDeleteProduct = useCallback((id: number) => {
+    setProducts(prev => prev.filter(product => product.id !== id));
+  }, []);
+
+  const handleUpdateOrderStatus = useCallback((orderId: string, updateData: OrderUpdateData) => {
+    setOrders(prev => prev.map(order => 
+      order.id === orderId ? { ...order, status: updateData.status } : order
+    ));
+  }, []);
+
   const handlePlaceOrder = useCallback((shippingAddress: ShippingAddress) => {
     const newOrder: Order = {
       id: Math.random().toString(36).substr(2, 9),
@@ -907,59 +908,102 @@ const App: React.FC = () => {
     };
     
     setCurrentOrder(newOrder);
+    setOrders(prev => [newOrder, ...prev]);
     clearCart();
-    setCurrentRoute(ROUTES.CONFIRMATION);
+    navigateTo('confirmation');
     
     console.log('Order placed:', newOrder);
-  }, [cart, totals, clearCart]);
-
-  const renderCurrentPage = () => {
-    switch (currentRoute) {
-      case ROUTES.HOME:
-        return <HomePage onAddToCart={addToCart} onNavigate={setCurrentRoute} />;
-      case ROUTES.PRODUCTS:
-        return (
-          <ProductsPage 
-            onAddToCart={addToCart}
-            onNavigate={setCurrentRoute}
-          />
-        );
-      case ROUTES.CART:
-        return (
-          <CartPage 
-            cart={cart}
-            totals={totals}
-            onUpdateQuantity={updateQuantity}
-            onRemoveItem={removeItem}
-            onNavigate={setCurrentRoute}
-          />
-        );
-      case ROUTES.CHECKOUT:
-        return (
-          <CheckoutPage 
-            cart={cart}
-            totals={totals}
-            onNavigate={setCurrentRoute}
-            onPlaceOrder={handlePlaceOrder}
-          />
-        );
-      case ROUTES.TRACKING:
-        return <TrackingPage onNavigate={setCurrentRoute} />;
-      case ROUTES.CONFIRMATION:
-        return <ConfirmationPage order={currentOrder} onNavigate={setCurrentRoute} />;
-      default:
-        return <HomePage onAddToCart={addToCart} onNavigate={setCurrentRoute} />;
-    }
-  };
+  }, [cart, totals, clearCart, navigateTo]);
 
   return (
-    <Layout
-      onNavigate={setCurrentRoute}
-      cartCount={cartTotal}
-      currentRoute={currentRoute}
-    >
-      {renderCurrentPage()}
-    </Layout>
+    <Routes>
+      {/* Admin Route - No Layout */}
+      <Route 
+        path="/admin" 
+        element={
+          <AdminApp
+            products={products}
+            orders={orders}
+            onAddProduct={handleAddProduct}
+            onUpdateProduct={handleUpdateProduct}
+            onDeleteProduct={handleDeleteProduct}
+            onUpdateOrderStatus={handleUpdateOrderStatus}
+            onBackToStore={() => navigateTo('home')}
+          />
+        } 
+      />
+      
+      {/* All other routes - With Layout */}
+      <Route 
+        path="/*" 
+        element={
+          <Layout
+            onNavigate={navigateTo}
+            cartCount={cartTotal}
+            currentRoute={currentRoute as AppRoute}
+          >
+            <Routes>
+              <Route 
+                path="/" 
+                element={
+                  <HomePage onAddToCart={addToCart} onNavigate={navigateTo} />
+                } 
+              />
+              <Route 
+                path="/products" 
+                element={
+                  <ProductsPage 
+                    products={products}
+                    onAddToCart={addToCart}
+                    onNavigate={navigateTo}
+                  />
+                } 
+              />
+              <Route 
+                path="/cart" 
+                element={
+                  <CartPage 
+                    cart={cart}
+                    totals={totals}
+                    onUpdateQuantity={updateQuantity}
+                    onRemoveItem={removeItem}
+                    onNavigate={navigateTo}
+                  />
+                } 
+              />
+              <Route 
+                path="/checkout" 
+                element={
+                  <CheckoutPage 
+                    cart={cart}
+                    totals={totals}
+                    onNavigate={navigateTo}
+                    onPlaceOrder={handlePlaceOrder}
+                  />
+                } 
+              />
+              <Route 
+                path="/tracking" 
+                element={<TrackingPage onNavigate={navigateTo} />} 
+              />
+              <Route 
+                path="/confirmation" 
+                element={<ConfirmationPage order={currentOrder} onNavigate={navigateTo} />} 
+              />
+            </Routes>
+          </Layout>
+        } 
+      />
+    </Routes>
+  );
+};
+
+// Main App Component with Router
+const App: React.FC = () => {
+  return (
+    <Router>
+      <AppContent />
+    </Router>
   );
 };
 
