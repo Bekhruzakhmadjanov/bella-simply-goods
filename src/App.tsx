@@ -2,6 +2,9 @@ import React, { useState, useCallback } from 'react';
 import { BrowserRouter as Router, Routes, Route, useNavigate, useLocation } from 'react-router-dom';
 import { ArrowLeft, CheckCircle, Clock, MapPin, Package, Truck, Home as HomeIcon, Filter, ArrowRight } from 'lucide-react';
 
+import { useEffect } from 'react'; // You already have this
+import { getProductsFromFirebase } from './firebase/products';
+
 // Types
 import type { Route as AppRoute } from './types/common.types';
 import type { Product } from './types/product.types';
@@ -862,6 +865,21 @@ const AppContent: React.FC = () => {
     shipping,
     total
   } = useCart();
+
+  // ADD THIS FIREBASE TEST CODE HERE:
+  useEffect(() => {
+    const testFirebase = async () => {
+      try {
+        console.log('Testing Firebase connection...');
+        const products = await getProductsFromFirebase();
+        console.log('Firebase connected successfully! Products:', products);
+      } catch (error) {
+        console.error('Firebase connection error:', error);
+      }
+    };
+    
+    testFirebase();
+  }, []);
 
   const removeItem = useCallback((productId: number) => {
     updateQuantity(productId, 0);

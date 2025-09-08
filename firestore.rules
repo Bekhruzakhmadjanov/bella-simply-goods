@@ -1,0 +1,16 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Allow read access to products for everyone
+    match /products/{document} {
+      allow read: if true;
+      allow write: if false; // Control writes through your admin interface
+    }
+    
+    // Protect orders - only allow reads for now
+    match /orders/{document} {
+      allow read: if false; // You can customize this later
+      allow write: if false; // Control through admin interface
+    }
+  }
+}
