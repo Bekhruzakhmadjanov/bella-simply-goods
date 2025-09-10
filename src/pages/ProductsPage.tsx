@@ -5,114 +5,23 @@ import type { Route } from '../types/common.types';
 import { Breadcrumb } from '../components/layout/Breadcrumb';
 import { Button } from '../components/common/Button';
 
-// All products data
-const ALL_PRODUCTS: Product[] = [
-  {
-    id: 1,
-    name: "Dubai chocolate, Pistachio chocolate, Knafeh milk chocolate",
-    description: "Rich milk chocolate filled with crispy kataifi and premium pistachio cream",
-    price: 24.99,
-    image: "https://images.unsplash.com/photo-1606312619070-d48b4c652a52?w=400&h=400&fit=crop",
-    rating: 5,
-    popular: true,
-    inStock: true,
-    category: "Milk Chocolate"
-  },
-  {
-    id: 2,
-    name: "Dubai chocolate, Pistachio chocolate, Knafeh dark chocolate",
-    description: "70% dark chocolate with roasted pistachios and honey-infused kataifi",
-    price: 27.99,
-    image: "https://images.unsplash.com/photo-1578849278619-e73505e9610f?w=400&h=400&fit=crop",
-    rating: 5,
-    popular: false,
-    inStock: true,
-    category: "Dark Chocolate"
-  },
-  {
-    id: 3,
-    name: "Dubai chocolate, Pistachio chocolate, Knafeh white chocolate",
-    description: "Creamy white chocolate with candied pistachios and vanilla kataifi",
-    price: 26.99,
-    image: "https://images.unsplash.com/photo-1511381939415-e44015466834?w=400&h=400&fit=crop",
-    rating: 4.9,
-    popular: false,
-    inStock: true,
-    category: "White Chocolate"
-  },
-  {
-    id: 4,
-    name: "Homemade Heart Shape Dubai Pistachio with Knafeh Milk Chocolate 6 piece with Gift Wrap",
-    description: "Six heart-shaped milk chocolate pieces with pistachio and kataifi, beautifully gift wrapped - perfect for special occasions",
-    price: 45.99,
-    image: "https://images.unsplash.com/photo-1549007994-cb92caebd54b?w=400&h=400&fit=crop",
-    rating: 5,
-    popular: true,
-    inStock: true,
-    category: "Gift Sets"
-  },
-  {
-    id: 5,
-    name: "DUBAI chocolate \"Original\" 1 single bar milk chocolate",
-    description: "Get a taste of Original Dubai Chocolate - single milk chocolate bar perfect for trying our authentic recipe",
-    price: 12.99,
-    image: "https://images.unsplash.com/photo-1606312619070-d48b4c652a52?w=400&h=400&fit=crop",
-    rating: 4.8,
-    popular: true,
-    inStock: true,
-    category: "Single Bars"
-  },
-  {
-    id: 6,
-    name: "DUBAI chocolate \"Original\" 1 single bar dark chocolate",
-    description: "Get a taste of Original Dubai Chocolate - single dark chocolate bar perfect for trying our authentic recipe",
-    price: 12.99,
-    image: "https://images.unsplash.com/photo-1578849278619-e73505e9610f?w=400&h=400&fit=crop",
-    rating: 4.8,
-    popular: false,
-    inStock: true,
-    category: "Single Bars"
-  },
-  {
-    id: 7,
-    name: "Dubai chocolate Original size. Pistachio Knafeh chocolate bar",
-    description: "Only ONE Bar of Chocolate - original size Dubai chocolate bar with pistachio and kataifi filling",
-    price: 18.99,
-    image: "https://images.unsplash.com/photo-1606312619070-d48b4c652a52?w=400&h=400&fit=crop",
-    rating: 4.9,
-    popular: false,
-    inStock: true,
-    category: "Original Size"
-  },
-  {
-    id: 8,
-    name: "DUBAI CHOCOLATE FILLING",
-    description: "Sweet, Crunchy and Buttery Taste - 1x Jar 13oz of our signature Dubai chocolate filling",
-    price: 32.99,
-    image: "https://images.unsplash.com/photo-1558961363-fa8fdf82db35?w=400&h=400&fit=crop",
-    rating: 4.7,
-    popular: false,
-    inStock: true,
-    category: "Fillings"
-  }
-];
-
 interface ProductsPageProps {
+  products: Product[]; // Add this line
   onAddToCart: (product: Product) => void;
   onNavigate: (route: Route) => void;
 }
 
-const ProductsPage: React.FC<ProductsPageProps> = ({ onAddToCart, onNavigate }) => {
+const ProductsPage: React.FC<ProductsPageProps> = ({ products, onAddToCart, onNavigate }) => {
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
   const [sortBy, setSortBy] = useState<string>('name');
 
   // Get unique categories - filter out undefined values
-  const categories = ['All', ...Array.from(new Set(ALL_PRODUCTS.map(p => p.category).filter((cat): cat is string => Boolean(cat))))];
+  const categories = ['All', ...Array.from(new Set(products.map(p => p.category).filter((cat): cat is string => Boolean(cat))))];
 
   // Filter products by category
   const filteredProducts = selectedCategory === 'All' 
-    ? ALL_PRODUCTS 
-    : ALL_PRODUCTS.filter(product => product.category === selectedCategory);
+    ? products 
+    : products.filter(product => product.category === selectedCategory);
 
   // Sort products
   const sortedProducts = [...filteredProducts].sort((a, b) => {
@@ -185,7 +94,7 @@ const ProductsPage: React.FC<ProductsPageProps> = ({ onAddToCart, onNavigate }) 
               {/* Results Count */}
               <div className="text-sm text-gray-600">
                 <span className="font-medium">
-                  Showing {sortedProducts.length} of {ALL_PRODUCTS.length} products
+                  Showing {sortedProducts.length} of {products.length} products
                 </span>
                 {selectedCategory !== 'All' && (
                   <span className="ml-2 text-yellow-800 font-medium">
@@ -337,7 +246,7 @@ const ProductsPage: React.FC<ProductsPageProps> = ({ onAddToCart, onNavigate }) 
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button 
               onClick={() => {
-                const giftSet = ALL_PRODUCTS.find(p => p.category === 'Gift Sets');
+                const giftSet = products.find(p => p.category === 'Gift Sets');
                 if (giftSet) onAddToCart(giftSet);
               }}
               size="large"
@@ -346,7 +255,7 @@ const ProductsPage: React.FC<ProductsPageProps> = ({ onAddToCart, onNavigate }) 
             </Button>
             <Button 
               onClick={() => {
-                const singleBar = ALL_PRODUCTS.find(p => p.category === 'Single Bars');
+                const singleBar = products.find(p => p.category === 'Single Bars');
                 if (singleBar) onAddToCart(singleBar);
               }}
               variant="outline"
