@@ -20,6 +20,16 @@ const app = initializeApp(firebaseConfig);
 // Initialize Firebase services
 export const db = getFirestore(app);
 export const auth = getAuth(app);
-export const analytics = getAnalytics(app);
 
+// Initialize Analytics only in production and if measurement ID exists
+let analytics = null;
+if (typeof window !== 'undefined' && import.meta.env.VITE_FIREBASE_MEASUREMENT_ID) {
+  try {
+    analytics = getAnalytics(app);
+  } catch (error) {
+    console.warn('Analytics not available:', error);
+  }
+}
+
+export { analytics };
 export default app;

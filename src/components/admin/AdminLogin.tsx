@@ -1,12 +1,11 @@
-// components/admin/AdminLogin.tsx
+// components/admin/AdminLogin.tsx - Updated with real Firebase authentication
 import React, { useState } from 'react';
 import { Eye, EyeOff, Lock, Mail, Shield } from 'lucide-react';
 import { Button } from '../common/Button';
 import { LoadingSpinner } from '../common/LoadingSpinner';
-import type { AdminUser } from '../../types/admin.types';
 
 interface AdminLoginProps {
-  onLogin: (user: AdminUser) => void;
+  onLogin: (email: string, password: string) => Promise<void>;
   onBackToStore: () => void;
 }
 
@@ -35,23 +34,24 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ onLogin, onBackToStore }) => {
     setIsLoading(true);
     setError('');
 
-    // Simulate API call
-    setTimeout(() => {
-      // Mock authentication - in real app, validate against backend
-      if (formData.email === 'admin@bellasimplygoods.com' && formData.password === 'admin123') {
-        const adminUser: AdminUser = {
-          id: '1',
-          email: formData.email,
-          name: 'Admin User',
-          role: 'admin',
-          lastLogin: new Date()
-        };
-        onLogin(adminUser);
+    try {
+      await onLogin(formData.email, formData.password);
+    } catch (error: any) {
+      console.error('Login error:', error);
+      if (error.message?.includes('user-not-found')) {
+        setError('Admin user not found. Please contact support.');
+      } else if (error.message?.includes('wrong-password')) {
+        setError('Invalid password. Please try again.');
+      } else if (error.message?.includes('invalid-email')) {
+        setError('Invalid email address format.');
+      } else if (error.message?.includes('too-many-requests')) {
+        setError('Too many failed attempts. Please try again later.');
       } else {
-        setError('Invalid email or password');
+        setError(error.message || 'Login failed. Please try again.');
       }
+    } finally {
       setIsLoading(false);
-    }, 1000);
+    }
   };
 
   return (
@@ -82,6 +82,7 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ onLogin, onBackToStore }) => {
                 onChange={handleInputChange}
                 className="w-full pl-12 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:border-yellow-800 focus:outline-none transition-colors"
                 required
+                disabled={isLoading}
               />
             </div>
 
@@ -96,11 +97,13 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ onLogin, onBackToStore }) => {
                 onChange={handleInputChange}
                 className="w-full pl-12 pr-12 py-3 border-2 border-gray-200 rounded-xl focus:border-yellow-800 focus:outline-none transition-colors"
                 required
+                disabled={isLoading}
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
                 className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                disabled={isLoading}
               >
                 {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
               </button>
@@ -143,6 +146,7 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ onLogin, onBackToStore }) => {
             <button
               onClick={onBackToStore}
               className="text-gray-500 hover:text-yellow-800 transition-colors"
+              disabled={isLoading}
             >
               ← Back to Store
             </button>

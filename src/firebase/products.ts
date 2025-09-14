@@ -1,17 +1,22 @@
-// src/firebase/products.ts
+// src/firebase/products.ts - Cleaned up unused imports
 import { 
   collection, 
   addDoc, 
   getDocs, 
   updateDoc, 
-  deleteDoc, 
   doc, 
   query, 
-  orderBy 
+  orderBy,
+  Timestamp 
 } from 'firebase/firestore';
 import { db } from './config';
 import type { Product } from '../types/product.types';
 import type { ProductFormData } from '../types/admin.types';
+
+// Convert Date to Firebase Timestamp
+const convertDateToTimestamp = (date: Date): Timestamp => {
+  return Timestamp.fromDate(date);
+};
 
 // Add a new product to Firebase
 export const addProductToFirebase = async (productData: ProductFormData): Promise<string> => {
@@ -19,8 +24,11 @@ export const addProductToFirebase = async (productData: ProductFormData): Promis
     const docRef = await addDoc(collection(db, 'products'), {
       ...productData,
       rating: productData.rating ?? 5.0,
-      createdAt: new Date(),
-      updatedAt: new Date()
+      createdAt: convertDateToTimestamp(new Date()),
+      updatedAt: convertDateToTimestamp(new Date()),
+      isActive: true,
+      viewCount: 0,
+      orderCount: 0
     });
     console.log('Product added to Firebase with ID: ', docRef.id);
     return docRef.id;
@@ -42,17 +50,20 @@ export const getProductsFromFirebase = async (): Promise<Product[]> => {
     const products: Product[] = [];
     querySnapshot.forEach((doc) => {
       const data = doc.data();
-      products.push({
-        id: parseInt(doc.id, 36), // Convert Firebase ID to number
-        name: data.name,
-        description: data.description,
-        price: data.price,
-        image: data.image,
-        rating: data.rating,
-        popular: data.popular,
-        category: data.category,
-        inStock: data.inStock ?? true
-      });
+      
+      if (data.isActive !== false) {
+        products.push({
+          id: doc.id, // Use Firebase document ID directly as string
+          name: data.name,
+          description: data.description,
+          price: data.price,
+          image: data.image,
+          rating: data.rating || 5.0,
+          popular: data.popular || false,
+          category: data.category || 'Other',
+          inStock: data.inStock ?? true
+        });
+      }
     });
     
     return products;
@@ -69,7 +80,7 @@ export const updateProductInFirebase = async (productId: string, productData: Pr
     await updateDoc(productRef, {
       ...productData,
       rating: productData.rating ?? 5.0,
-      updatedAt: new Date()
+      updatedAt: convertDateToTimestamp(new Date())
     });
     console.log('Product updated in Firebase');
   } catch (error) {
@@ -78,11 +89,15 @@ export const updateProductInFirebase = async (productId: string, productData: Pr
   }
 };
 
-// Delete product from Firebase
+// Delete product from Firebase (soft delete)
 export const deleteProductFromFirebase = async (productId: string): Promise<void> => {
   try {
-    await deleteDoc(doc(db, 'products', productId));
-    console.log('Product deleted from Firebase');
+    const productRef = doc(db, 'products', productId);
+    await updateDoc(productRef, {
+      isActive: false,
+      deletedAt: convertDateToTimestamp(new Date())
+    });
+    console.log('Product soft deleted from Firebase');
   } catch (error) {
     console.error('Error deleting product from Firebase: ', error);
     throw error;

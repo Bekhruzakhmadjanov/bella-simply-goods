@@ -20,7 +20,7 @@ export const useCart = () => {
     });
   }, []);
 
-  const updateQuantity = useCallback((productId: number, newQuantity: number) => {
+  const updateQuantity = useCallback((productId: string, newQuantity: number) => {
     if (newQuantity === 0) {
       setCart(prevCart => prevCart.filter(item => item.id !== productId));
     } else {

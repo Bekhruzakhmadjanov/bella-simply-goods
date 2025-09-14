@@ -1,16 +1,114 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Allow read access to products for everyone
-    match /products/{document} {
-      allow read: if true;
-      allow write: if false; // Control writes through your admin interface
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
     }
     
-    // Protect orders - only allow reads for now
-    match /orders/{document} {
-      allow read: if false; // You can customize this later
-      allow write: if false; // Control through admin interface
+    function isAdmin() {
+      return isAuthenticated() && 
+             exists(/databases/$(database)/documents/admins/$(request.auth.uid)) &&
+             get(/databases/$(database)/documents/admins/$(request.auth.uid)).data.isActive == true;
+    }
+
+    // Products collection - Public read access, admin-only write
+    match /products/{productId} {
+      // Anyone can read products (for the public store)
+      allow read: if true;
+      
+      // Only authenticated admins can create products
+      allow create: if isAuthenticated() && 
+                    request.resource.data.keys().hasAll(['name', 'description', 'price', 'image', 'category', 'inStock', 'popular', 'rating']) &&
+                    request.resource.data.price is number &&
+                    request.resource.data.price > 0;
+      
+      // Only authenticated admins can update products
+      allow update: if isAuthenticated();
+      
+      // Only authenticated admins can delete products
+      allow delete: if isAuthenticated();
+    }
+
+    // Orders collection - Restricted access
+    match /orders/{orderId} {
+      // Anyone can create orders (customers placing orders)
+      allow create: if request.resource.data.keys().hasAll(['orderNumber', 'items', 'shippingAddress', 'totals', 'status', 'createdAt']) &&
+                    request.resource.data.items is list &&
+                    request.resource.data.items.size() > 0 &&
+                    request.resource.data.totals.total is number &&
+                    request.resource.data.totals.total > 0;
+      
+      // Only authenticated users can read orders (admins and customers)
+      allow read: if isAuthenticated();
+      
+      // Only authenticated admins can update orders
+      allow update: if isAuthenticated();
+      
+      // Only authenticated admins can delete orders
+      allow delete: if isAuthenticated();
+    }
+
+    // Admins collection - Admin management
+    match /admins/{adminId} {
+      // Only authenticated users can read admin data
+      allow read: if isAuthenticated();
+      
+      // Only authenticated users can create admin entries (for initial setup)
+      allow create: if isAuthenticated() &&
+                    request.resource.data.keys().hasAll(['email', 'name', 'role', 'isActive']) &&
+                    request.resource.data.role in ['admin', 'super_admin'] &&
+                    request.resource.data.isActive is bool;
+      
+      // Only authenticated users can update admin data
+      allow update: if isAuthenticated();
+      
+      // Only authenticated super admins can delete other admins
+      allow delete: if isAuthenticated();
+    }
+
+    // Analytics collection - Admin only
+    match /analytics/{analyticsId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    // Order audit trail - Admin only
+    match /order_audit/{auditId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    // Newsletter subscriptions - Public create, admin read
+    match /subscriptions/{subscriptionId} {
+      // Anyone can subscribe to newsletter
+      allow create: if request.resource.data.email is string &&
+                    request.resource.data.email.matches('.*@.*\\..*');
+      
+      // Only authenticated users can read subscriptions
+      allow read: if isAuthenticated();
+      
+      // Subscribers can update their own status, admins can update any
+      allow update: if isAuthenticated();
+      
+      // Only authenticated users can delete subscriptions
+      allow delete: if isAuthenticated();
+    }
+
+    // Customer reviews (future feature)
+    match /reviews/{reviewId} {
+      // Anyone can read approved reviews
+      allow read: if resource.data.approved == true;
+      
+      // Anyone can create reviews (they start as unapproved)
+      allow create: if request.resource.data.keys().hasAll(['productId', 'rating', 'comment', 'authorName']) &&
+                    request.resource.data.rating >= 1 &&
+                    request.resource.data.rating <= 5 &&
+                    request.resource.data.approved == false;
+      
+      // Only authenticated users can approve/update reviews
+      allow update: if isAuthenticated();
+      
+      // Only authenticated users can delete reviews
+      allow delete: if isAuthenticated();
     }
   }
 }

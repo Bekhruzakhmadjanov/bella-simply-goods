@@ -1,20 +1,14 @@
-// src/App.tsx - Clean, modular main app file
+// src/App.tsx - Fixed with consistent string IDs, no fallback data
 
 import React, { useState, useCallback, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, useNavigate, useLocation } from 'react-router-dom';
 
-// Firebase imports
-import { 
-  getProductsFromFirebase, 
-  addProductToFirebase, 
-  updateProductInFirebase, 
-  deleteProductFromFirebase 
-} from './firebase/products';
-import { 
-  getOrdersFromFirebase, 
-  addOrderToFirebase, 
-  updateOrderInFirebase 
-} from './firebase/orders';
+// Backend Hooks
+import { useProducts, useOrders } from './hooks/useFirebaseData';
+import { useCart } from './hooks/useCart';
+
+// Email Service
+import { initializeEmailService } from './services/emailService';
 
 // Types
 import type { Route as AppRoute } from './types/common.types';
@@ -22,12 +16,8 @@ import type { Product } from './types/product.types';
 import type { Order, ShippingAddress } from './types/order.types';
 import type { ProductFormData, OrderUpdateData } from './types/admin.types';
 
-// Constants and Data - Fallback data
-import { ALL_PRODUCTS } from './data/products';
-
-// Utils and Hooks
+// Utils
 import { generateOrderNumber } from './utils/calculations';
-import { useCart } from './hooks/useCart';
 
 // Layout Components
 import { Layout } from './components/layout/Layout';
@@ -81,11 +71,22 @@ const useAppNavigation = () => {
 const AppContent: React.FC = () => {
   const { navigateTo, currentRoute } = useAppNavigation();
   const [currentOrder, setCurrentOrder] = useState<Order | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
   
-  // Product state for admin management
-  const [products, setProducts] = useState<Product[]>([]);
-  const [orders, setOrders] = useState<Order[]>([]);
+  // Use enhanced backend hooks
+  const {
+    products,
+    loading: productsLoading,
+    addProduct,
+    updateProduct,
+    deleteProduct,
+    incrementProductView
+  } = useProducts();
+
+  const {
+    orders,
+    addOrder,
+    updateOrderStatus
+  } = useOrders();
 
   const {
     cart,
@@ -99,126 +100,68 @@ const AppContent: React.FC = () => {
     total
   } = useCart();
 
-  // Load Firebase data on app start
+  // Initialize email service on app start
   useEffect(() => {
-    const loadFirebaseData = async () => {
-      try {
-        console.log('Loading Firebase data...');
-        
-        // Load products
-        try {
-          const firebaseProducts = await getProductsFromFirebase();
-          console.log('Firebase products loaded:', firebaseProducts);
-          setProducts(firebaseProducts.length > 0 ? firebaseProducts : ALL_PRODUCTS);
-        } catch (productError) {
-          console.warn('Using fallback products:', productError);
-          setProducts(ALL_PRODUCTS);
-        }
-        
-        // Load orders
-        try {
-          const firebaseOrders = await getOrdersFromFirebase();
-          console.log('Firebase orders loaded:', firebaseOrders);
-          setOrders(firebaseOrders);
-        } catch (orderError) {
-          console.warn('Could not load orders:', orderError);
-          setOrders([]);
-        }
-        
-      } catch (error) {
-        console.error('Firebase initialization error:', error);
-        // Use fallback data
-        setProducts(ALL_PRODUCTS);
-        setOrders([]);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    
-    loadFirebaseData();
+    initializeEmailService();
   }, []);
 
-  const removeItem = useCallback((productId: number) => {
+  const removeItem = useCallback((productId: string) => {
     updateQuantity(productId, 0);
   }, [updateQuantity]);
 
   const totals = { subtotal, tax, shipping, total };
 
-  // Admin product management functions
+  // Enhanced add to cart with analytics
+  const handleAddToCart = useCallback((product: Product) => {
+    addToCart(product);
+    // Track product interaction
+    incrementProductView(product.id);
+  }, [addToCart, incrementProductView]);
+
+  // Admin product management functions with error handling
   const handleAddProduct = useCallback(async (productData: ProductFormData) => {
     try {
-      const newProductId = await addProductToFirebase(productData);
-      const newProduct: Product = {
-        id: parseInt(newProductId, 36), // Convert Firebase ID to number
-        ...productData,
-        rating: productData.rating ?? 5.0
-      };
-      setProducts(prev => [...prev, newProduct]);
+      await addProduct(productData);
       console.log('Product added successfully');
     } catch (error) {
       console.error('Failed to add product:', error);
-      // Fallback to local state update
-      const newProduct: Product = {
-        id: Math.max(...products.map(p => p.id)) + 1,
-        ...productData,
-        rating: productData.rating ?? 5.0
-      };
-      setProducts(prev => [...prev, newProduct]);
+      throw error; // Re-throw to let the admin component handle it
     }
-  }, [products]);
+  }, [addProduct]);
 
-  const handleUpdateProduct = useCallback(async (id: number, productData: ProductFormData) => {
+  const handleUpdateProduct = useCallback(async (id: string, productData: ProductFormData) => {
     try {
-      // Convert number ID back to Firebase string ID for update
-      const firebaseId = id.toString(36);
-      await updateProductInFirebase(firebaseId, productData);
-      setProducts(prev => prev.map(product => 
-        product.id === id ? { ...product, ...productData } : product
-      ));
+      await updateProduct(id, productData);
       console.log('Product updated successfully');
     } catch (error) {
       console.error('Failed to update product:', error);
-      // Fallback to local state update
-      setProducts(prev => prev.map(product => 
-        product.id === id ? { ...product, ...productData } : product
-      ));
+      throw error;
     }
-  }, []);
+  }, [updateProduct]);
 
-  const handleDeleteProduct = useCallback(async (id: number) => {
+  const handleDeleteProduct = useCallback(async (id: string) => {
     try {
-      // Convert number ID back to Firebase string ID for deletion
-      const firebaseId = id.toString(36);
-      await deleteProductFromFirebase(firebaseId);
-      setProducts(prev => prev.filter(product => product.id !== id));
+      await deleteProduct(id);
       console.log('Product deleted successfully');
     } catch (error) {
       console.error('Failed to delete product:', error);
-      // Fallback to local state update
-      setProducts(prev => prev.filter(product => product.id !== id));
+      throw error;
     }
-  }, []);
+  }, [deleteProduct]);
 
   const handleUpdateOrderStatus = useCallback(async (orderId: string, updateData: OrderUpdateData) => {
     try {
-      await updateOrderInFirebase(orderId, updateData);
-      setOrders(prev => prev.map(order => 
-        order.id === orderId ? { ...order, status: updateData.status } : order
-      ));
+      await updateOrderStatus(orderId, updateData);
       console.log('Order status updated successfully');
     } catch (error) {
       console.error('Failed to update order status:', error);
-      // Fallback to local state update
-      setOrders(prev => prev.map(order => 
-        order.id === orderId ? { ...order, status: updateData.status } : order
-      ));
+      throw error;
     }
-  }, []);
+  }, [updateOrderStatus]);
 
   const handlePlaceOrder = useCallback(async (shippingAddress: ShippingAddress) => {
     try {
-      const newOrder: Order = {
-        id: Math.random().toString(36).substr(2, 9),
+      const newOrder: Omit<Order, 'id'> = {
         orderNumber: generateOrderNumber(),
         items: cart,
         shippingAddress,
@@ -228,44 +171,46 @@ const AppContent: React.FC = () => {
         estimatedDelivery: new Date(Date.now() + 4 * 24 * 60 * 60 * 1000)
       };
       
-      // Save to Firebase
-      const firebaseOrderId = await addOrderToFirebase(newOrder);
+      // Save to Firebase and send confirmation email
+      const firebaseOrderId = await addOrder(newOrder);
       const orderWithFirebaseId = { ...newOrder, id: firebaseOrderId };
       
       setCurrentOrder(orderWithFirebaseId);
-      setOrders(prev => [orderWithFirebaseId, ...prev]);
       clearCart();
       navigateTo('confirmation');
       
       console.log('Order placed successfully:', orderWithFirebaseId);
     } catch (error) {
       console.error('Failed to place order:', error);
-      // Fallback to local state
-      const newOrder: Order = {
-        id: Math.random().toString(36).substr(2, 9),
-        orderNumber: generateOrderNumber(),
-        items: cart,
-        shippingAddress,
-        totals,
-        status: 'placed',
-        createdAt: new Date(),
-        estimatedDelivery: new Date(Date.now() + 4 * 24 * 60 * 60 * 1000)
-      };
-      
-      setCurrentOrder(newOrder);
-      setOrders(prev => [newOrder, ...prev]);
-      clearCart();
-      navigateTo('confirmation');
+      throw error;
     }
-  }, [cart, totals, clearCart, navigateTo]);
+  }, [cart, totals, clearCart, navigateTo, addOrder]);
 
-  // Show loading spinner while Firebase data loads
-  if (isLoading) {
+  // Show loading spinner while initial data loads
+  if (productsLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-yellow-800 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading...</p>
+          <p className="text-gray-600">Loading store...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // If no products available, show empty state
+  if (!productsLoading && products.length === 0) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold text-gray-900 mb-4">No Products Available</h2>
+          <p className="text-gray-600 mb-6">Please add some products through the admin panel.</p>
+          <button
+            onClick={() => navigateTo('admin')}
+            className="bg-yellow-800 text-white px-6 py-3 rounded-lg hover:bg-yellow-900 transition-colors"
+          >
+            Go to Admin Panel
+          </button>
         </div>
       </div>
     );
@@ -304,7 +249,7 @@ const AppContent: React.FC = () => {
                 element={
                   <HomePage 
                     products={products}
-                    onAddToCart={addToCart} 
+                    onAddToCart={handleAddToCart} 
                     onNavigate={navigateTo} 
                   />
                 } 
@@ -314,7 +259,7 @@ const AppContent: React.FC = () => {
                 element={
                   <ProductsPage 
                     products={products}
-                    onAddToCart={addToCart}
+                    onAddToCart={handleAddToCart}
                     onNavigate={navigateTo}
                   />
                 } 

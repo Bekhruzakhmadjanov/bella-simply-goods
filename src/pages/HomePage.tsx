@@ -96,7 +96,7 @@ export const HomePage: React.FC<HomePageProps> = ({ products, onAddToCart, onNav
 
       {/* Additional sections can be added here */}
       {/* Customer Reviews Section */}
-      <section className="py-20 px-6 bg-white">
+      {/* <section className="py-20 px-6 bg-white">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16">
             <h3 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
@@ -161,7 +161,7 @@ export const HomePage: React.FC<HomePageProps> = ({ products, onAddToCart, onNav
             </div>
           </div>
         </div>
-      </section>
+      </section> */}
 
       {/* Newsletter Signup Section */}
       <section className="py-16 px-6 bg-gradient-to-r from-yellow-800 to-amber-900">
@@ -176,11 +176,12 @@ export const HomePage: React.FC<HomePageProps> = ({ products, onAddToCart, onNav
             <input
               type="email"
               placeholder="Enter your email"
-              className="flex-1 px-4 py-3 rounded-lg border-0 focus:outline-none focus:ring-2 focus:ring-yellow-300"
+              className="flex-1 px-4 py-3 rounded-lg border-0 focus:outline-none focus:ring-2 focus:ring-yellow-300 text-gray-900"
             />
             <Button 
               variant="secondary"
-              className="bg-white text-yellow-800 hover:bg-yellow-50 whitespace-nowrap"
+              size="medium"
+              className="whitespace-nowrap"
             >
               Subscribe
             </Button>

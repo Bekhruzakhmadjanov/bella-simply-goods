@@ -1,4 +1,4 @@
-// src/firebase/orders.ts
+// src/firebase/orders.ts - Updated to work with new backend
 import { 
   collection, 
   addDoc, 
@@ -34,7 +34,9 @@ export const addOrderToFirebase = async (order: Omit<Order, 'id'>): Promise<stri
       createdAt: convertDateToTimestamp(order.createdAt),
       estimatedDelivery: order.estimatedDelivery 
         ? convertDateToTimestamp(order.estimatedDelivery) 
-        : null
+        : null,
+      isActive: true,
+      version: 1
     };
 
     const docRef = await addDoc(collection(db, 'orders'), orderData);
@@ -58,18 +60,22 @@ export const getOrdersFromFirebase = async (): Promise<Order[]> => {
     const orders: Order[] = [];
     querySnapshot.forEach((doc) => {
       const data = doc.data();
-      orders.push({
-        id: doc.id,
-        orderNumber: data.orderNumber,
-        items: data.items,
-        shippingAddress: data.shippingAddress,
-        totals: data.totals,
-        status: data.status,
-        createdAt: convertTimestampToDate(data.createdAt),
-        estimatedDelivery: data.estimatedDelivery 
-          ? convertTimestampToDate(data.estimatedDelivery) 
-          : undefined
-      });
+      
+      // Only include active orders (or orders without isActive field for backward compatibility)
+      if (data.isActive !== false) {
+        orders.push({
+          id: doc.id,
+          orderNumber: data.orderNumber,
+          items: data.items,
+          shippingAddress: data.shippingAddress,
+          totals: data.totals,
+          status: data.status,
+          createdAt: convertTimestampToDate(data.createdAt),
+          estimatedDelivery: data.estimatedDelivery 
+            ? convertTimestampToDate(data.estimatedDelivery) 
+            : undefined
+        });
+      }
     });
     
     return orders;

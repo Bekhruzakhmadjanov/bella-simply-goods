@@ -1,4 +1,4 @@
-// components/admin/AdminProducts.tsx
+// components/admin/AdminProducts.tsx - Fixed to use string IDs
 import React, { useState } from 'react';
 import { 
   Plus, 
@@ -18,8 +18,8 @@ import type { ProductFormData } from '../../types/admin.types';
 interface AdminProductsProps {
   products: Product[];
   onAddProduct: (product: ProductFormData) => void;
-  onUpdateProduct: (id: number, product: ProductFormData) => void;
-  onDeleteProduct: (id: number) => void;
+  onUpdateProduct: (id: string, product: ProductFormData) => void;  // Changed to string
+  onDeleteProduct: (id: string) => void;  // Changed to string
 }
 
 const AdminProducts: React.FC<AdminProductsProps> = ({
@@ -77,7 +77,7 @@ const AdminProducts: React.FC<AdminProductsProps> = ({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (editingProduct) {
-      onUpdateProduct(editingProduct.id, formData);
+      onUpdateProduct(editingProduct.id, formData);  // Now using string ID
     } else {
       onAddProduct(formData);
     }
@@ -91,7 +91,7 @@ const AdminProducts: React.FC<AdminProductsProps> = ({
       price: product.price,
       image: product.image,
       category: product.category || '',
-      inStock: product.inStock ?? true, // Fix: Use nullish coalescing
+      inStock: product.inStock ?? true,
       popular: product.popular,
       rating: product.rating
     });
@@ -314,7 +314,7 @@ const AdminProducts: React.FC<AdminProductsProps> = ({
                     <Edit size={16} />
                   </button>
                   <button
-                    onClick={() => onDeleteProduct(product.id)}
+                    onClick={() => onDeleteProduct(product.id)}  // Now using string ID
                     className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                     title="Delete product"
                   >

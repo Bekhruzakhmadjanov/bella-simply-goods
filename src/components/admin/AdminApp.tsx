@@ -1,5 +1,6 @@
-// components/admin/AdminApp.tsx
-import React, { useState, useCallback } from 'react';
+// src/components/admin/AdminApp.tsx
+import React, { useState, useCallback, useEffect } from 'react';
+import { loginAdmin, logoutAdmin, onAdminAuthStateChanged } from '../../firebase/auth';
 import { AdminLogin } from './AdminLogin';
 import { AdminLayout } from './AdminLayout';
 import { AdminDashboard } from './AdminDashboard';
@@ -7,7 +8,6 @@ import { AdminProducts } from './AdminProducts';
 import { AdminOrders } from './AdminOrders';
 import type { 
   AdminRoute, 
-  AdminUser, 
   AdminAuth, 
   ProductFormData, 
   OrderUpdateData,
@@ -20,8 +20,8 @@ interface AdminAppProps {
   products: Product[];
   orders: Order[];
   onAddProduct: (product: ProductFormData) => void;
-  onUpdateProduct: (id: number, product: ProductFormData) => void;
-  onDeleteProduct: (id: number) => void;
+  onUpdateProduct: (id: string, product: ProductFormData) => void;
+  onDeleteProduct: (id: string) => void;
   onUpdateOrderStatus: (orderId: string, updateData: OrderUpdateData) => void;
   onBackToStore: () => void;
 }
@@ -41,8 +41,23 @@ const AdminApp: React.FC<AdminAppProps> = ({
     token: null
   });
   const [currentRoute, setCurrentRoute] = useState<AdminRoute>('admin-dashboard');
+  const [loading, setLoading] = useState(true);
 
-  // Mock dashboard stats calculation
+  // Listen for authentication state changes
+  useEffect(() => {
+    const unsubscribe = onAdminAuthStateChanged((user) => {
+      setAuth({
+        user,
+        isAuthenticated: !!user,
+        token: user ? 'authenticated' : null
+      });
+      setLoading(false);
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  // Dashboard stats calculation
   const getDashboardStats = useCallback((): DashboardStats => {
     const totalOrders = orders.length;
     const pendingOrders = orders.filter(o => ['placed', 'processing'].includes(o.status)).length;
@@ -50,7 +65,7 @@ const AdminApp: React.FC<AdminAppProps> = ({
       .filter(o => o.status === 'delivered')
       .reduce((sum, order) => sum + order.totals.total, 0);
     const totalProducts = products.length;
-    const lowStockProducts = 0; // In a real app, you'd have stock quantities
+    const lowStockProducts = 0;
     const recentOrders = orders
       .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
       .slice(0, 10);
@@ -65,25 +80,39 @@ const AdminApp: React.FC<AdminAppProps> = ({
     };
   }, [orders, products]);
 
-  const handleLogin = (user: AdminUser) => {
-    setAuth({
-      user,
-      isAuthenticated: true,
-      token: 'mock-jwt-token' // In real app, this would come from backend
-    });
+  const handleLogin = async (email: string, password: string) => {
+    try {
+      const user = await loginAdmin(email, password);
+      console.log('Admin logged in successfully:', user);
+    } catch (error) {
+      console.error('Login failed:', error);
+      throw error;
+    }
   };
 
-  const handleLogout = () => {
-    setAuth({
-      user: null,
-      isAuthenticated: false,
-      token: null
-    });
-    setCurrentRoute('admin-dashboard');
+  const handleLogout = async () => {
+    try {
+      await logoutAdmin();
+      setCurrentRoute('admin-dashboard');
+    } catch (error) {
+      console.error('Logout failed:', error);
+    }
   };
 
   const handleNavigateToOrders = () => setCurrentRoute('admin-orders');
   const handleNavigateToProducts = () => setCurrentRoute('admin-products');
+
+  // Show loading spinner while checking authentication
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-yellow-800 mx-auto mb-4"></div>
+          <p className="text-gray-600">Checking authentication...</p>
+        </div>
+      </div>
+    );
+  }
 
   // If not authenticated, show login
   if (!auth.isAuthenticated || !auth.user) {
@@ -97,7 +126,6 @@ const AdminApp: React.FC<AdminAppProps> = ({
 
   // Render current admin page
   const renderCurrentPage = () => {
-    // Type guard to ensure user is not null
     if (!auth.user) {
       return null;
     }
@@ -169,3 +197,4 @@ const AdminApp: React.FC<AdminAppProps> = ({
 };
 
 export { AdminApp };
+export default AdminApp;
