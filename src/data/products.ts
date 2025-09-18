@@ -3,7 +3,7 @@ import type { Product } from '../types/product.types';
 // All products for the products page
 export const ALL_PRODUCTS: Product[] = [
   {
-    id: 1,
+    id: "1", // Changed from number to string
     name: "Dubai chocolate, Pistachio chocolate, Knafeh milk chocolate",
     description: "Rich milk chocolate filled with crispy kataifi and premium pistachio cream",
     price: 24.99,
@@ -14,7 +14,7 @@ export const ALL_PRODUCTS: Product[] = [
     category: "Milk Chocolate"
   },
   {
-    id: 2,
+    id: "2", // Changed from number to string
     name: "Dubai chocolate, Pistachio chocolate, Knafeh dark chocolate",
     description: "70% dark chocolate with roasted pistachios and honey-infused kataifi",
     price: 27.99,
@@ -25,7 +25,7 @@ export const ALL_PRODUCTS: Product[] = [
     category: "Dark Chocolate"
   },
   {
-    id: 3,
+    id: "3", // Changed from number to string
     name: "Dubai chocolate, Pistachio chocolate, Knafeh white chocolate",
     description: "Creamy white chocolate with candied pistachios and vanilla kataifi",
     price: 26.99,
@@ -36,7 +36,7 @@ export const ALL_PRODUCTS: Product[] = [
     category: "White Chocolate"
   },
   {
-    id: 4,
+    id: "4", // Changed from number to string
     name: "Homemade Heart Shape Dubai Pistachio with Knafeh Milk Chocolate 6 piece with Gift Wrap",
     description: "Six heart-shaped milk chocolate pieces with pistachio and kataifi, beautifully gift wrapped - perfect for special occasions",
     price: 45.99,
@@ -47,7 +47,7 @@ export const ALL_PRODUCTS: Product[] = [
     category: "Gift Sets"
   },
   {
-    id: 5,
+    id: "5", // Changed from number to string
     name: "DUBAI chocolate \"Original\" 1 single bar milk chocolate",
     description: "Get a taste of Original Dubai Chocolate - single milk chocolate bar perfect for trying our authentic recipe",
     price: 12.99,
@@ -58,7 +58,7 @@ export const ALL_PRODUCTS: Product[] = [
     category: "Single Bars"
   },
   {
-    id: 6,
+    id: "6", // Changed from number to string
     name: "DUBAI chocolate \"Original\" 1 single bar dark chocolate",
     description: "Get a taste of Original Dubai Chocolate - single dark chocolate bar perfect for trying our authentic recipe",
     price: 12.99,
@@ -69,7 +69,7 @@ export const ALL_PRODUCTS: Product[] = [
     category: "Single Bars"
   },
   {
-    id: 7,
+    id: "7", // Changed from number to string
     name: "Dubai chocolate Original size. Pistachio Knafeh chocolate bar",
     description: "Only ONE Bar of Chocolate - original size Dubai chocolate bar with pistachio and kataifi filling",
     price: 18.99,
@@ -80,7 +80,7 @@ export const ALL_PRODUCTS: Product[] = [
     category: "Original Size"
   },
   {
-    id: 8,
+    id: "8", // Changed from number to string
     name: "DUBAI CHOCOLATE FILLING",
     description: "Sweet, Crunchy and Buttery Taste - 1x Jar 13oz of our signature Dubai chocolate filling",
     price: 32.99,

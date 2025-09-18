@@ -75,7 +75,7 @@ const Hero: React.FC<HeroProps> = ({
           {/* Features */}
           {showFeatures && (
             <div className="flex flex-wrap justify-center gap-6 mb-12">
-              {features.map(({ icon: Icon, text, color }, index) => (
+              {features.map(({ icon: Icon, text, color }) => (
                 <div 
                   key={text}
                   className="flex items-center space-x-3 bg-white/80 backdrop-blur-sm px-6 py-3 rounded-2xl shadow-lg border border-green-100 transform hover:scale-105 transition-all duration-300"
@@ -105,7 +105,7 @@ const Hero: React.FC<HeroProps> = ({
 
         {/* Stats */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-3xl mx-auto">
-          {stats.map(({ number, label, icon: Icon }, index) => (
+          {stats.map(({ number, label, icon: Icon }) => (
             <div 
               key={label}
               className={`text-center p-8 rounded-2xl bg-white/70 backdrop-blur-sm border border-green-100 shadow-xl transform hover:scale-105 transition-all duration-300 ${

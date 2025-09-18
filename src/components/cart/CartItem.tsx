@@ -4,8 +4,8 @@ import type { CartItem as CartItemType } from '../../types/cart.types';
 
 interface CartItemProps {
   item: CartItemType;
-  onUpdateQuantity: (productId: number, newQuantity: number) => void;
-  onRemove?: (productId: number) => void;
+  onUpdateQuantity: (productId: string, newQuantity: number) => void; // Changed from number to string
+  onRemove?: (productId: string) => void; // Changed from number to string
   showRemoveButton?: boolean;
 }
 
