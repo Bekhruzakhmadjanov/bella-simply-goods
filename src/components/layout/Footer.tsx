@@ -39,11 +39,11 @@ const Footer: React.FC<FooterProps> = ({
           {/* Company Info */}
           <div className="lg:col-span-2">
             <div className="flex items-center space-x-3 mb-6">
-              <div className="w-12 h-12 bg-gradient-to-r from-yellow-800 to-amber-900 rounded-2xl flex items-center justify-center shadow-lg">
+              <div className="w-12 h-12 bg-gradient-to-r from-green-600 via-emerald-700 to-teal-700 rounded-2xl flex items-center justify-center shadow-lg">
                 <span className="text-white font-bold text-xl">B</span>
               </div>
               <div>
-                <h3 className="text-2xl font-bold bg-gradient-to-r from-yellow-600 to-amber-600 bg-clip-text text-transparent">{companyName}</h3>
+                <h3 className="text-2xl font-bold bg-gradient-to-r from-green-400 via-emerald-400 to-teal-400 bg-clip-text text-transparent">{companyName}</h3>
                 <p className="text-gray-300 text-sm">Authentic Dubai Chocolate</p>
               </div>
             </div>
@@ -59,7 +59,7 @@ const Footer: React.FC<FooterProps> = ({
                   <a
                     key={label}
                     href={href}
-                    className="w-12 h-12 bg-gradient-to-r from-yellow-800 to-amber-900 rounded-xl flex items-center justify-center text-white hover:from-amber-800 hover:to-yellow-900 transition-all duration-300 shadow-lg transform hover:scale-105"
+                    className="w-12 h-12 bg-gradient-to-r from-green-600 via-emerald-700 to-teal-700 rounded-xl flex items-center justify-center text-white hover:from-emerald-600 hover:via-teal-600 hover:to-green-700 transition-all duration-300 shadow-lg transform hover:scale-105"
                     aria-label={label}
                     target="_blank"
                     rel="noopener noreferrer"
@@ -73,32 +73,32 @@ const Footer: React.FC<FooterProps> = ({
 
           {/* Contact Info */}
           <div>
-            <h4 className="text-xl font-bold mb-6 text-yellow-600">Contact Info</h4>
+            <h4 className="text-xl font-bold mb-6 bg-gradient-to-r from-green-400 to-emerald-400 bg-clip-text text-transparent">Contact Info</h4>
             <div className="space-y-4">
               <div className="flex items-center space-x-3 text-gray-300">
-                <div className="w-8 h-8 bg-yellow-800 rounded-lg flex items-center justify-center">
+                <div className="w-8 h-8 bg-gradient-to-r from-green-600 to-emerald-700 rounded-lg flex items-center justify-center">
                   <Mail size={16} />
                 </div>
                 <a 
                   href={`mailto:${supportEmail}`}
-                  className="hover:text-amber-400 transition-colors"
+                  className="hover:text-green-400 transition-colors"
                 >
                   {supportEmail}
                 </a>
               </div>
               <div className="flex items-center space-x-3 text-gray-300">
-                <div className="w-8 h-8 bg-yellow-800 rounded-lg flex items-center justify-center">
+                <div className="w-8 h-8 bg-gradient-to-r from-emerald-600 to-teal-700 rounded-lg flex items-center justify-center">
                   <Phone size={16} />
                 </div>
                 <a 
                   href={`tel:${supportPhone}`}
-                  className="hover:text-amber-400 transition-colors"
+                  className="hover:text-emerald-400 transition-colors"
                 >
                   {supportPhone}
                 </a>
               </div>
               <div className="flex items-center space-x-3 text-gray-300">
-                <div className="w-8 h-8 bg-yellow-800 rounded-lg flex items-center justify-center">
+                <div className="w-8 h-8 bg-gradient-to-r from-teal-600 to-green-700 rounded-lg flex items-center justify-center">
                   <MapPin size={16} />
                 </div>
                 <span>Nationwide USA Delivery</span>
@@ -108,13 +108,13 @@ const Footer: React.FC<FooterProps> = ({
 
           {/* Quick Links */}
           <div>
-            <h4 className="text-xl font-bold mb-6 text-yellow-600">Quick Links</h4>
+            <h4 className="text-xl font-bold mb-6 bg-gradient-to-r from-emerald-400 to-teal-400 bg-clip-text text-transparent">Quick Links</h4>
             <div className="space-y-3">
               {quickLinks.map(({ label, action }) => (
                 <button
                   key={label}
                   onClick={action}
-                  className="block text-gray-300 hover:text-amber-400 transition-colors text-left hover:bg-gray-800 px-3 py-2 rounded-lg w-full"
+                  className="block text-gray-300 hover:text-green-400 transition-colors text-left hover:bg-gray-800 px-3 py-2 rounded-lg w-full"
                 >
                   {label}
                 </button>

@@ -1,5 +1,5 @@
 import React from 'react';
-import { CheckCircle, Star, ArrowRight } from 'lucide-react';
+import { CheckCircle, ArrowRight } from 'lucide-react';
 import { Button } from '../common/Button';
 
 interface HeroProps {
@@ -37,15 +37,9 @@ const Hero: React.FC<HeroProps> = ({
     }
   ];
 
-  const stats = [
-    { number: "10K+", label: "Happy Customers" },
-    { number: "4.9", label: "Average Rating", icon: Star },
-    { number: "48hrs", label: "Fresh Delivery" }
-  ];
-
   return (
     <section 
-      className={`relative overflow-hidden py-24 px-6 bg-gradient-to-br from-green-100 via-green-50 to-emerald-50 ${className}`}
+      className={`relative overflow-hidden pt-24 px-6 bg-gradient-to-br from-green-100 via-green-50 to-emerald-50 ${className}`}
       style={backgroundImage ? { 
         backgroundImage: `linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url(${backgroundImage})`,
         backgroundSize: 'cover',
@@ -89,7 +83,7 @@ const Hero: React.FC<HeroProps> = ({
 
           {/* CTA Button */}
           {onGetStarted && (
-            <div className="mb-20">
+            <div className="mb-8">
               <Button 
                 onClick={onGetStarted}
                 variant="primary"
@@ -101,32 +95,6 @@ const Hero: React.FC<HeroProps> = ({
               </Button>
             </div>
           )}
-        </div>
-
-        {/* Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-3xl mx-auto">
-          {stats.map(({ number, label, icon: Icon }) => (
-            <div 
-              key={label}
-              className={`text-center p-8 rounded-2xl bg-white/70 backdrop-blur-sm border border-green-100 shadow-xl transform hover:scale-105 transition-all duration-300 ${
-                backgroundImage ? 'text-white' : 'text-gray-900'
-              }`}
-            >
-              <div className="flex items-center justify-center mb-3">
-                <span className={`text-4xl md:text-5xl font-bold ${
-                  backgroundImage ? 'text-white' : 'bg-gradient-to-r from-amber-600 to-yellow-600 bg-clip-text text-transparent'
-                }`}>
-                  {number}
-                </span>
-                {Icon && <Icon className="ml-2 text-amber-400 drop-shadow-sm" size={28} />}
-              </div>
-              <p className={`text-lg font-semibold ${
-                backgroundImage ? 'text-gray-100' : 'text-gray-700'
-              }`}>
-                {label}
-              </p>
-            </div>
-          ))}
         </div>
       </div>
     </section>

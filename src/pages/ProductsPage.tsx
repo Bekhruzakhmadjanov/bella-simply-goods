@@ -60,8 +60,8 @@ const ProductsPage: React.FC<ProductsPageProps> = ({ products, onAddToCart, onNa
         </div>
       </section>
 
-      {/* UPDATED Filters and Sort Section */}
-      <section className="py-4 px-6 bg-white border-b border-gray-200 sticky top-0 z-10 shadow-sm">
+      {/* Filters and Sort Section - Removed sticky positioning */}
+      <section className="py-4 px-6 bg-white border-b border-gray-200 shadow-sm">
         <div className="max-w-7xl mx-auto">
           <div className="space-y-4">
             

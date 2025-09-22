@@ -13,7 +13,7 @@ const Button: React.FC<ButtonProps> = ({
   className = '', 
   ...props 
 }) => {
-  const baseClasses = 'font-semibold rounded-xl transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl transform hover:-translate-y-0.5';
+  const baseClasses = 'font-semibold rounded-xl transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed shadow hover:shadow-md transform hover:-translate-y-0.5';
   
   const variants = {
     // Olive green (brown-green mix) integration
