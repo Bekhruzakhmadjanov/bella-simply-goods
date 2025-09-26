@@ -39,8 +39,12 @@ const Header: React.FC<HeaderProps> = ({
             onClick={() => handleNavigate('home')}
             className="flex items-center space-x-2 sm:space-x-4 hover:scale-105 transition-transform duration-300 flex-shrink-0"
           >
-            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-r from-yellow-800 to-amber-900 rounded-2xl flex items-center justify-center shadow-lg flex-shrink-0">
-              <span className="text-white font-bold text-lg sm:text-xl">B</span>
+            <div className="w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center flex-shrink-0">
+              <img 
+                src="/Logo1.png" 
+                alt={companyName}
+                className="w-full h-full object-contain"
+              />
             </div>
             <div className="min-w-0 flex-1">
               <h1 className="text-base sm:text-2xl md:text-3xl font-bold bg-gradient-to-r from-yellow-800 via-amber-800 to-yellow-900 bg-clip-text text-transparent leading-tight truncate">

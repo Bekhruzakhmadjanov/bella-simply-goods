@@ -49,7 +49,7 @@ const CartEmpty: React.FC<CartEmptyProps> = ({
       {/* Additional Info */}
       <div className="mt-12 text-sm text-gray-400 space-y-2">
         <p>Fresh handmade Dubai chocolate</p>
-        <p>Free shipping on orders over $50</p>
+        <p>Free shipping on orders over $100</p>
         <p>Same-day processing</p>
       </div>
     </div>

@@ -39,9 +39,6 @@ const Footer: React.FC<FooterProps> = ({
           {/* Company Info */}
           <div className="lg:col-span-2">
             <div className="flex items-center space-x-3 mb-6">
-              <div className="w-12 h-12 bg-gradient-to-r from-green-600 via-emerald-700 to-teal-700 rounded-2xl flex items-center justify-center shadow-lg">
-                <span className="text-white font-bold text-xl">B</span>
-              </div>
               <div>
                 <h3 className="text-2xl font-bold bg-gradient-to-r from-green-400 via-emerald-400 to-teal-400 bg-clip-text text-transparent">{companyName}</h3>
                 <p className="text-gray-300 text-sm">Authentic Dubai Chocolate</p>
@@ -133,8 +130,8 @@ const Footer: React.FC<FooterProps> = ({
             {/* Additional Info */}
             <div className="flex flex-col md:flex-row md:items-center md:space-x-8 mt-4 md:mt-0 text-gray-400">
               <span>Fresh Handmade Daily</span>
-              <span>Free Shipping Over $50</span>
-              <span>Secure Payments</span>
+              <span>Free Shipping Over $100</span>
+              <span>Secure Payments with Stripe</span>
             </div>
           </div>
         </div>

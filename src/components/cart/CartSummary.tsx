@@ -18,7 +18,7 @@ const CartSummary: React.FC<CartSummaryProps> = ({
   totals,
   onCheckout, 
   showShippingNote = true,
-  freeShippingThreshold = 50,
+  freeShippingThreshold = 100,
   isLoading = false,
   checkoutButtonText = "Proceed to Checkout"
 }) => {
