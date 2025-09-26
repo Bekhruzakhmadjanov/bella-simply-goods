@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { CheckCircle, ArrowRight } from 'lucide-react';
 import { Button } from '../common/Button';
 
@@ -37,9 +37,24 @@ const Hero: React.FC<HeroProps> = ({
     }
   ];
 
+  const [currentFeatureIndex, setCurrentFeatureIndex] = useState(0);
+
+  // Auto-rotate carousel for mobile
+  useEffect(() => {
+    if (showFeatures) {
+      const interval = setInterval(() => {
+        setCurrentFeatureIndex((prevIndex) => 
+          (prevIndex + 1) % features.length
+        );
+      }, 3000); // Change every 3 seconds
+
+      return () => clearInterval(interval);
+    }
+  }, [showFeatures, features.length]);
+
   return (
     <section 
-      className={`relative overflow-hidden pt-24 px-6 bg-gradient-to-br from-green-100 via-green-50 to-emerald-50 ${className}`}
+      className={`relative overflow-hidden pt-8 sm:pt-24 px-6 bg-gradient-to-br from-green-100 via-green-50 to-emerald-50 ${className}`}
       style={backgroundImage ? { 
         backgroundImage: `linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url(${backgroundImage})`,
         backgroundSize: 'cover',
@@ -68,16 +83,67 @@ const Hero: React.FC<HeroProps> = ({
 
           {/* Features */}
           {showFeatures && (
-            <div className="flex flex-wrap justify-center gap-6 mb-12">
-              {features.map(({ icon: Icon, text, color }) => (
-                <div 
-                  key={text}
-                  className="flex items-center space-x-3 bg-white/80 backdrop-blur-sm px-6 py-3 rounded-2xl shadow-lg border border-green-100 transform hover:scale-105 transition-all duration-300"
-                >
-                  <Icon className={color} size={22} />
-                  <span className="text-gray-800 font-semibold">{text}</span>
+            <div className="mb-12">
+              {/* Desktop: Show all features */}
+              <div className="hidden sm:flex flex-wrap justify-center gap-6">
+                {features.map(({ icon: Icon, text, color }) => (
+                  <div 
+                    key={text}
+                    className="flex items-center space-x-3 bg-white/80 backdrop-blur-sm px-6 py-3 rounded-2xl shadow-lg border border-green-100 transform hover:scale-105 transition-all duration-300"
+                  >
+                    <Icon className={color} size={22} />
+                    <span className="text-gray-800 font-semibold">{text}</span>
+                  </div>
+                ))}
+              </div>
+
+              {/* Mobile: Carousel */}
+              <div className="sm:hidden">
+                <div className="flex justify-center mb-4">
+                  <div className="relative min-w-[200px] h-[60px] flex items-center justify-center">
+                    {features.map((feature, index) => {
+                      const Icon = feature.icon;
+                      const isActive = index === currentFeatureIndex;
+                      const translateX = (index - currentFeatureIndex) * 100;
+                      
+                      return (
+                        <div
+                          key={feature.text}
+                          className={`absolute inset-0 flex items-center space-x-3 bg-white/80 backdrop-blur-sm px-6 py-3 rounded-2xl shadow-lg border border-green-100 justify-center transition-all duration-700 ease-in-out transform ${
+                            isActive 
+                              ? 'opacity-100 scale-100' 
+                              : 'opacity-0 scale-95'
+                          }`}
+                          style={{
+                            transform: `translateX(${translateX}%) ${isActive ? 'scale(1)' : 'scale(0.95)'}`,
+                          }}
+                        >
+                          <Icon className={feature.color} size={22} />
+                          <span className="text-gray-800 font-semibold">
+                            {feature.text}
+                          </span>
+                        </div>
+                      );
+                    })}
+                  </div>
                 </div>
-              ))}
+
+                {/* Carousel indicators */}
+                <div className="flex justify-center space-x-2">
+                  {features.map((_, index) => (
+                    <button
+                      key={index}
+                      onClick={() => setCurrentFeatureIndex(index)}
+                      className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                        index === currentFeatureIndex 
+                          ? 'bg-green-600 w-6' 
+                          : 'bg-gray-300'
+                      }`}
+                      aria-label={`Go to feature ${index + 1}`}
+                    />
+                  ))}
+                </div>
+              </div>
             </div>
           )}
 
