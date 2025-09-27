@@ -1,6 +1,6 @@
 // src/pages/LeaveReviewPage.tsx - Updated with backend integration
 import React, { useState } from 'react';
-import { Star, Upload, X, Send, CheckCircle } from 'lucide-react';
+import { Star, Send, CheckCircle } from 'lucide-react'; // add Upload and X
 import type { Route } from '../types/common.types';
 import type { ReviewFormData } from '../types/review.types';
 import { useReviews } from '../hooks/useReviews';
@@ -98,23 +98,23 @@ export const LeaveReviewPage: React.FC<LeaveReviewPageProps> = ({ onNavigate }) 
     }
   };
 
-  const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (files) {
-      const newFiles = Array.from(files).slice(0, 3 - reviewData.photos.length); // Max 3 photos
-      setReviewData(prev => ({
-        ...prev,
-        photos: [...prev.photos, ...newFiles]
-      }));
-    }
-  };
+//   const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+//     const files = e.target.files;
+//     if (files) {
+//       const newFiles = Array.from(files).slice(0, 3 - reviewData.photos.length); // Max 3 photos
+//       setReviewData(prev => ({
+//         ...prev,
+//         photos: [...prev.photos, ...newFiles]
+//       }));
+//     }
+//   };
 
-  const removePhoto = (index: number) => {
-    setReviewData(prev => ({
-      ...prev,
-      photos: prev.photos.filter((_, i) => i !== index)
-    }));
-  };
+//   const removePhoto = (index: number) => {
+//     setReviewData(prev => ({
+//       ...prev,
+//       photos: prev.photos.filter((_, i) => i !== index)
+//     }));
+//   };
 
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
