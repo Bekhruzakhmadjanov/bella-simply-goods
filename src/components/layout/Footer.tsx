@@ -28,7 +28,7 @@ const Footer: React.FC<FooterProps> = ({
 
   const socialLinks = [
     { icon: Facebook, href: '#', label: 'Facebook' },
-    { icon: Instagram, href: '#', label: 'Instagram' },
+    { icon: Instagram, href: 'https://www.instagram.com/bellasimplygoods/', label: 'Instagram' },
     { icon: Twitter, href: '#', label: 'Twitter' },
   ];
 

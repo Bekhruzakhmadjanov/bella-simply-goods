@@ -1,0 +1,45 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    // Review photos - allow public read, authenticated write with size limits
+    match /review-photos/{allPaths=**} {
+      // Anyone can read review photos (for displaying on website)
+      allow read: if true;
+      
+      // Authenticated users can upload photos with restrictions
+      allow write: if request.auth != null &&
+                   request.resource.size < 5 * 1024 * 1024 && // 5MB limit
+                   request.resource.contentType.matches('image/.*'); // Only images
+      
+      // Allow deletion for cleanup (admin or user who uploaded)
+      allow delete: if request.auth != null;
+    }
+    
+    // Product images - admin only
+    match /product-images/{allPaths=**} {
+      // Anyone can read product images
+      allow read: if true;
+      
+      // Only authenticated admins can upload/modify product images
+      allow write: if request.auth != null &&
+                    request.resource.size < 10 * 1024 * 1024 && // 10MB limit for product images
+                    request.resource.contentType.matches('image/.*');
+      
+      // Only authenticated admins can delete product images
+      allow delete: if request.auth != null;
+    }
+    
+    // General uploads - authenticated users only
+    match /uploads/{allPaths=**} {
+      // Authenticated users can read their own uploads
+      allow read: if request.auth != null;
+      
+      // Authenticated users can upload with size limits
+      allow write: if request.auth != null &&
+                    request.resource.size < 20 * 1024 * 1024; // 20MB limit
+      
+      // Users can delete their own uploads
+      allow delete: if request.auth != null;
+    }
+  }
+}

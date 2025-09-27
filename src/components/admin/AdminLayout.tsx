@@ -1,9 +1,11 @@
-// components/admin/AdminLayout.tsx
+// components/admin/AdminLayout.tsx - Complete with Reviews section
 import React, { useState } from 'react';
 import { 
   LayoutDashboard, 
   Package, 
   ShoppingCart, 
+  Mail,
+  MessageSquare,
   Settings, 
   LogOut, 
   Menu, 
@@ -36,6 +38,8 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({
     { route: 'admin-dashboard' as AdminRoute, label: 'Dashboard', icon: LayoutDashboard },
     { route: 'admin-products' as AdminRoute, label: 'Products', icon: Package },
     { route: 'admin-orders' as AdminRoute, label: 'Orders', icon: ShoppingCart },
+    { route: 'admin-reviews' as AdminRoute, label: 'Reviews', icon: MessageSquare },
+    { route: 'admin-feedback' as AdminRoute, label: 'Email Feedback', icon: Mail },
     { route: 'admin-settings' as AdminRoute, label: 'Settings', icon: Settings },
   ];
 

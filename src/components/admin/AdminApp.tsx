@@ -1,4 +1,4 @@
-// src/components/admin/AdminApp.tsx
+// src/components/admin/AdminApp.tsx - Updated with Reviews management
 import React, { useState, useCallback, useEffect } from 'react';
 import { loginAdmin, logoutAdmin, onAdminAuthStateChanged } from '../../firebase/auth';
 import { AdminLogin } from './AdminLogin';
@@ -6,6 +6,8 @@ import { AdminLayout } from './AdminLayout';
 import { AdminDashboard } from './AdminDashboard';
 import { AdminProducts } from './AdminProducts';
 import { AdminOrders } from './AdminOrders';
+import { AdminReviews } from './AdminReviews';
+import { FeedbackManager } from './FeedbackManager';
 import type { 
   AdminRoute, 
   AdminAuth, 
@@ -156,6 +158,10 @@ const AdminApp: React.FC<AdminAppProps> = ({
             onUpdateOrderStatus={onUpdateOrderStatus}
           />
         );
+      case 'admin-reviews':
+        return <AdminReviews currentUser={auth.user} />;
+      case 'admin-feedback':
+        return <FeedbackManager orders={orders} />;
       case 'admin-settings':
         return (
           <div className="space-y-6">

@@ -1,4 +1,4 @@
-// src/App.tsx - Fixed with consistent string IDs, no fallback data
+// src/App.tsx - Updated with review page route
 
 import React, { useState, useCallback, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, useNavigate, useLocation } from 'react-router-dom';
@@ -29,6 +29,7 @@ import { CartPage } from './pages/CartPage';
 import { CheckoutPage } from './pages/CheckoutPage';
 import { TrackingPage } from './pages/TrackingPage';
 import { ConfirmationPage } from './pages/ConfirmationPage';
+import { LeaveReviewPage } from './pages/LeaveReviewPage';
 
 // Admin Components
 import { AdminApp } from './components/admin/AdminApp';
@@ -46,6 +47,7 @@ const useAppNavigation = () => {
       checkout: '/checkout',
       tracking: '/tracking',
       confirmation: '/confirmation',
+      'leave-review': '/leave-review',
       admin: '/admin'
     };
     navigate(pathMap[route] || '/');
@@ -59,6 +61,7 @@ const useAppNavigation = () => {
       '/checkout': 'checkout',
       '/tracking': 'tracking',
       '/confirmation': 'confirmation',
+      '/leave-review': 'leave-review',
       '/admin': 'admin'
     };
     return routeMap[location.pathname] || 'home';
@@ -301,6 +304,14 @@ const AppContent: React.FC = () => {
                 element={
                   <ConfirmationPage 
                     order={currentOrder} 
+                    onNavigate={navigateTo} 
+                  />
+                } 
+              />
+              <Route 
+                path="/leave-review" 
+                element={
+                  <LeaveReviewPage 
                     onNavigate={navigateTo} 
                   />
                 } 

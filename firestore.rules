@@ -49,6 +49,26 @@ service cloud.firestore {
       allow delete: if isAuthenticated();
     }
 
+    // Reviews collection - NEW: For customer reviews
+    match /reviews/{reviewId} {
+      // Anyone can read published and approved reviews
+      allow read: if true;
+      
+      // Anyone can create reviews (they start as unapproved and unpublished)
+      allow create: if request.resource.data.keys().hasAll(['customerName', 'email', 'orderNumber', 'overallRating', 'reviewText', 'wouldRecommend', 'isApproved', 'isPublished', 'createdAt']) &&
+                    request.resource.data.overallRating >= 1 &&
+                    request.resource.data.overallRating <= 5 &&
+                    request.resource.data.isApproved == false &&
+                    request.resource.data.isPublished == false &&
+                    request.resource.data.email.matches('.*@.*\\..*');
+      
+      // Only authenticated admins can moderate/update reviews
+      allow update: if isAuthenticated();
+      
+      // Only authenticated admins can delete reviews
+      allow delete: if isAuthenticated();
+    }
+
     // Admins collection - Admin management
     match /admins/{adminId} {
       // Only authenticated users can read admin data
@@ -90,24 +110,6 @@ service cloud.firestore {
       allow update: if isAuthenticated();
       
       // Only authenticated users can delete subscriptions
-      allow delete: if isAuthenticated();
-    }
-
-    // Customer reviews (future feature)
-    match /reviews/{reviewId} {
-      // Anyone can read approved reviews
-      allow read: if resource.data.approved == true;
-      
-      // Anyone can create reviews (they start as unapproved)
-      allow create: if request.resource.data.keys().hasAll(['productId', 'rating', 'comment', 'authorName']) &&
-                    request.resource.data.rating >= 1 &&
-                    request.resource.data.rating <= 5 &&
-                    request.resource.data.approved == false;
-      
-      // Only authenticated users can approve/update reviews
-      allow update: if isAuthenticated();
-      
-      // Only authenticated users can delete reviews
       allow delete: if isAuthenticated();
     }
   }

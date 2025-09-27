@@ -1,7 +1,8 @@
-// src/firebase/config.ts
+// src/firebase/config.ts - Updated with Firebase Storage
 import { initializeApp } from 'firebase/app';
 import { getFirestore } from 'firebase/firestore';
 import { getAuth } from 'firebase/auth';
+import { getStorage } from 'firebase/storage';
 import { getAnalytics } from 'firebase/analytics';
 
 const firebaseConfig = {
@@ -20,6 +21,7 @@ const app = initializeApp(firebaseConfig);
 // Initialize Firebase services
 export const db = getFirestore(app);
 export const auth = getAuth(app);
+export const storage = getStorage(app); // Add Firebase Storage
 
 // Initialize Analytics only in production and if measurement ID exists
 let analytics = null;

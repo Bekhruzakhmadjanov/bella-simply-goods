@@ -1,4 +1,4 @@
-// types/admin.types.ts
+// types/admin.types.ts - Updated with review management
 import type { Order } from './order.types';
 
 export interface AdminUser {
@@ -46,6 +46,8 @@ export type AdminRoute =
   | 'admin-dashboard' 
   | 'admin-products' 
   | 'admin-orders' 
+  | 'admin-feedback'
+  | 'admin-reviews'
   | 'admin-settings';
 
 export interface AdminNavItem {

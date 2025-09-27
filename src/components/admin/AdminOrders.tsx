@@ -1,4 +1,4 @@
-// components/admin/AdminOrders.tsx
+// components/admin/AdminOrders.tsx - Complete with status email integration
 import React, { useState } from 'react';
 import { 
   Search, 
@@ -16,6 +16,7 @@ import {
   Phone
 } from 'lucide-react';
 import { Button } from '../common/Button';
+import { sendOrderUpdateEmail } from '../../services/emailService';
 import type { Order, OrderStatus } from '../../types/order.types';
 import type { OrderUpdateData } from '../../types/admin.types';
 
@@ -32,6 +33,7 @@ const AdminOrders: React.FC<AdminOrdersProps> = ({
   const [statusFilter, setStatusFilter] = useState('All');
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [editingOrder, setEditingOrder] = useState<Order | null>(null);
+  const [isUpdating, setIsUpdating] = useState(false);
   const [updateData, setUpdateData] = useState<OrderUpdateData>({
     status: 'placed',
     trackingNumber: '',
@@ -87,11 +89,33 @@ const AdminOrders: React.FC<AdminOrdersProps> = ({
     });
   };
 
-  const handleUpdateOrder = () => {
-    if (editingOrder) {
-      onUpdateOrderStatus(editingOrder.id, updateData);
+  const handleUpdateOrder = async () => {
+    if (!editingOrder) return;
+
+    setIsUpdating(true);
+    
+    try {
+      // First update the order in Firebase
+      await onUpdateOrderStatus(editingOrder.id, updateData);
+      
+      // Then send the status update email
+      const updatedOrder = { ...editingOrder, status: updateData.status };
+      const emailSent = await sendOrderUpdateEmail(updatedOrder, updateData.trackingNumber);
+      
+      if (emailSent) {
+        console.log('Status update email sent successfully');
+      } else {
+        console.warn('Order updated but email failed to send');
+      }
+      
+      // Close the modal
       setEditingOrder(null);
       setUpdateData({ status: 'placed', trackingNumber: '', notes: '' });
+      
+    } catch (error) {
+      console.error('Error updating order:', error);
+    } finally {
+      setIsUpdating(false);
     }
   };
 
@@ -306,7 +330,7 @@ const AdminOrders: React.FC<AdminOrdersProps> = ({
         </div>
       )}
 
-      {/* Edit Order Modal */}
+      {/* Edit Order Modal with Email Integration */}
       {editingOrder && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-xl max-w-md w-full">
@@ -314,7 +338,11 @@ const AdminOrders: React.FC<AdminOrdersProps> = ({
               <h2 className="text-xl font-bold text-gray-900">
                 Update Order #{editingOrder.orderNumber}
               </h2>
-              <button onClick={handleCloseModal} className="text-gray-400 hover:text-gray-600">
+              <button 
+                onClick={handleCloseModal} 
+                className="text-gray-400 hover:text-gray-600"
+                disabled={isUpdating}
+              >
                 <X size={24} />
               </button>
             </div>
@@ -328,6 +356,7 @@ const AdminOrders: React.FC<AdminOrdersProps> = ({
                   value={updateData.status}
                   onChange={(e) => setUpdateData(prev => ({ ...prev, status: e.target.value as OrderStatus }))}
                   className="w-full border-2 border-yellow-700 rounded-xl px-4 py-3 focus:outline-none focus:ring-4 focus:ring-yellow-300 focus:border-amber-800"
+                  disabled={isUpdating}
                 >
                   {statusOptions.map(status => (
                     <option key={status} value={status}>
@@ -347,6 +376,7 @@ const AdminOrders: React.FC<AdminOrdersProps> = ({
                   onChange={(e) => setUpdateData(prev => ({ ...prev, trackingNumber: e.target.value }))}
                   className="w-full border-2 border-yellow-700 rounded-xl px-4 py-3 focus:outline-none focus:ring-4 focus:ring-yellow-300 focus:border-amber-800"
                   placeholder="Enter tracking number"
+                  disabled={isUpdating}
                 />
               </div>
 
@@ -360,15 +390,45 @@ const AdminOrders: React.FC<AdminOrdersProps> = ({
                   rows={3}
                   className="w-full border-2 border-yellow-700 rounded-xl px-4 py-3 focus:outline-none focus:ring-4 focus:ring-yellow-300 focus:border-amber-800"
                   placeholder="Add any notes about this update"
+                  disabled={isUpdating}
                 />
               </div>
 
+              {/* Email notification info */}
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                <p className="text-sm text-blue-800">
+                  <strong>Email Notification:</strong> Customer will automatically receive a status update email when you save changes.
+                  {updateData.status === 'delivered' && (
+                    <span className="block mt-1 font-medium">
+                      Feedback request email will be sent for delivered orders.
+                    </span>
+                  )}
+                </p>
+              </div>
+
               <div className="flex gap-4 pt-4 border-t border-gray-100">
-                <Button onClick={handleUpdateOrder} className="flex-1">
-                  <Save size={16} className="mr-2" />
-                  Update Order
+                <Button 
+                  onClick={handleUpdateOrder} 
+                  className="flex-1"
+                  disabled={isUpdating}
+                >
+                  {isUpdating ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                      Updating...
+                    </>
+                  ) : (
+                    <>
+                      <Save size={16} className="mr-2" />
+                      Update & Send Email
+                    </>
+                  )}
                 </Button>
-                <Button variant="outline" onClick={handleCloseModal}>
+                <Button 
+                  variant="outline" 
+                  onClick={handleCloseModal}
+                  disabled={isUpdating}
+                >
                   Cancel
                 </Button>
               </div>
