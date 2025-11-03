@@ -31,6 +31,8 @@ import { CheckoutPage } from './pages/CheckoutPage';
 import { TrackingPage } from './pages/TrackingPage';
 import { ConfirmationPage } from './pages/ConfirmationPage';
 import { LeaveReviewPage } from './pages/LeaveReviewPage';
+import { PrivacyPolicyPage } from './pages/PrivacyPolicyPage';
+import { ReturnPolicyPage } from './pages/ReturnPolicyPage';
 import { ProductDetailPage } from './pages/ProductDetailPage';
 import { Toast } from './components/common/Toast';
 
@@ -56,6 +58,8 @@ const AppContent: React.FC = () => {
       tracking: '/tracking',
       confirmation: '/confirmation',
       'leave-review': '/leave-review',
+      'privacy-policy': '/privacy-policy',
+      'return-policy': '/return-policy',
       admin: '/admin'
     };
     
@@ -76,6 +80,8 @@ const AppContent: React.FC = () => {
       '/tracking': 'tracking',
       '/confirmation': 'confirmation',
       '/leave-review': 'leave-review',
+      '/privacy-policy': 'privacy-policy',
+      '/return-policy': 'return-policy',
       '/admin': 'admin'
     };
     return routeMap[location.pathname] || 'home';
@@ -370,6 +376,22 @@ const AppContent: React.FC = () => {
                   path="/leave-review" 
                   element={
                     <LeaveReviewPage 
+                      onNavigate={navigateTo} 
+                    />
+                  } 
+                />
+                <Route 
+                  path="/privacy-policy" 
+                  element={
+                    <PrivacyPolicyPage 
+                      onNavigate={navigateTo} 
+                    />
+                  } 
+                />
+                <Route 
+                  path="/return-policy" 
+                  element={
+                    <ReturnPolicyPage 
                       onNavigate={navigateTo} 
                     />
                   } 

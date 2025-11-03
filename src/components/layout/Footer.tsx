@@ -21,9 +21,9 @@ const Footer: React.FC<FooterProps> = ({
 
   const quickLinks = [
     { label: 'Track Your Order', action: () => onNavigate?.('tracking') },
-    { label: 'Shipping Info', action: () => window.open('#shipping', '_blank') },
-    { label: 'Return Policy', action: () => window.open('#returns', '_blank') },
-    { label: 'Privacy Policy', action: () => window.open('#privacy', '_blank') },
+    { label: 'Leave Review', action: () => onNavigate?.('leave-review') },
+    { label: 'Return Policy', action: () => onNavigate?.('return-policy') },
+    { label: 'Privacy Policy', action: () => onNavigate?.('privacy-policy') },
   ];
 
   const socialLinks = [
