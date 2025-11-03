@@ -1,4 +1,4 @@
-// components/admin/AdminProducts.tsx - Fixed to use string IDs
+// components/admin/AdminProducts.tsx - Updated with multiple images support
 import React, { useState } from 'react';
 import { 
   Plus, 
@@ -18,8 +18,8 @@ import type { ProductFormData } from '../../types/admin.types';
 interface AdminProductsProps {
   products: Product[];
   onAddProduct: (product: ProductFormData) => void;
-  onUpdateProduct: (id: string, product: ProductFormData) => void;  // Changed to string
-  onDeleteProduct: (id: string) => void;  // Changed to string
+  onUpdateProduct: (id: string, product: ProductFormData) => void;
+  onDeleteProduct: (id: string) => void;
 }
 
 const AdminProducts: React.FC<AdminProductsProps> = ({
@@ -43,6 +43,7 @@ const AdminProducts: React.FC<AdminProductsProps> = ({
     popular: false,
     rating: 5.0
   });
+  const [imageUrls, setImageUrls] = useState<string[]>(['']);
 
   // Get unique categories
   const categories = ['All', ...Array.from(new Set(products.map(p => p.category).filter(Boolean)))];
@@ -70,16 +71,29 @@ const AdminProducts: React.FC<AdminProductsProps> = ({
       popular: false,
       rating: 5.0
     });
+    setImageUrls(['']);
     setEditingProduct(null);
     setShowAddForm(false);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Filter out empty URLs and prepare images array
+    const validImageUrls = imageUrls.filter(url => url.trim() !== '');
+    const mainImage = validImageUrls[0] || formData.image;
+    
+    const productData = {
+      ...formData,
+      image: mainImage,
+    };
+    
     if (editingProduct) {
-      onUpdateProduct(editingProduct.id, formData);  // Now using string ID
+      // Include images array in update
+      onUpdateProduct(editingProduct.id, { ...productData, images: validImageUrls } as any);
     } else {
-      onAddProduct(formData);
+      // Include images array in create
+      onAddProduct({ ...productData, images: validImageUrls } as any);
     }
     resetForm();
   };
@@ -95,6 +109,8 @@ const AdminProducts: React.FC<AdminProductsProps> = ({
       popular: product.popular,
       rating: product.rating
     });
+    // Load existing images or default to main image
+    setImageUrls(product.images && product.images.length > 0 ? [...product.images] : [product.image]);
     setEditingProduct(product);
     setShowAddForm(true);
   };
@@ -210,15 +226,61 @@ const AdminProducts: React.FC<AdminProductsProps> = ({
                 />
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <Input
-                  label="Image URL"
-                  name="image"
-                  type="url"
-                  value={formData.image}
-                  onChange={handleInputChange}
-                  required
-                />
+              {/* Multiple Images Section */}
+              <div>
+                <label className="block text-sm font-semibold text-gray-800 mb-2">
+                  Product Images
+                </label>
+                <p className="text-xs text-gray-600 mb-3">
+                  Add multiple image URLs. First image will be the main display image.
+                </p>
+                
+                {imageUrls.map((url, index) => (
+                  <div key={index} className="flex gap-2 mb-2">
+                    <input
+                      type="text"
+                      placeholder={`Image URL ${index + 1} (e.g., /images/product1/main.jpg)`}
+                      value={url}
+                      onChange={(e) => {
+                        const newUrls = [...imageUrls];
+                        newUrls[index] = e.target.value;
+                        setImageUrls(newUrls);
+                        // Update main image with first URL
+                        if (index === 0) {
+                          setFormData(prev => ({ ...prev, image: e.target.value }));
+                        }
+                      }}
+                      className="flex-1 border-2 border-yellow-700 rounded-xl px-4 py-3 text-gray-800 focus:outline-none focus:ring-4 focus:ring-yellow-300 focus:border-amber-800"
+                    />
+                    {imageUrls.length > 1 && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const newUrls = imageUrls.filter((_, i) => i !== index);
+                          setImageUrls(newUrls);
+                          // Update main image if we removed the first one
+                          if (index === 0 && newUrls.length > 0) {
+                            setFormData(prev => ({ ...prev, image: newUrls[0] }));
+                          }
+                        }}
+                        className="px-3 py-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                      >
+                        Remove
+                      </button>
+                    )}
+                  </div>
+                ))}
+                
+                <button
+                  type="button"
+                  onClick={() => setImageUrls([...imageUrls, ''])}
+                  className="text-sm text-yellow-800 hover:text-yellow-900 font-medium mt-2"
+                >
+                  + Add Another Image
+                </button>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <Input
                   label="Category"
                   name="category"
@@ -314,7 +376,7 @@ const AdminProducts: React.FC<AdminProductsProps> = ({
                     <Edit size={16} />
                   </button>
                   <button
-                    onClick={() => onDeleteProduct(product.id)}  // Now using string ID
+                    onClick={() => onDeleteProduct(product.id)}
                     className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                     title="Delete product"
                   >

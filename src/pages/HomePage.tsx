@@ -3,6 +3,7 @@ import React from 'react';
 import { CheckCircle, Clock, MapPin, ArrowRight } from 'lucide-react';
 import type { Product } from '../types/product.types';
 import type { Route } from '../types/common.types';
+import type { CartItem } from '../types/cart.types';
 
 // Layout Components
 import { Hero } from '../components/layout/Hero';
@@ -15,11 +16,13 @@ import { Button } from '../components/common/Button';
 
 interface HomePageProps {
   products: Product[];
+  cart: CartItem[];
   onAddToCart: (product: Product) => void;
-  onNavigate: (route: Route | 'admin') => void;
+  onUpdateQuantity: (productId: string, newQuantity: number) => void;
+  onNavigate: (route: Route | 'admin', productId?: string) => void;
 }
 
-export const HomePage: React.FC<HomePageProps> = ({ products, onAddToCart, onNavigate }) => {
+export const HomePage: React.FC<HomePageProps> = ({ products, cart, onAddToCart, onUpdateQuantity, onNavigate }) => {
   // Use featured products from Firebase data or fallback
   const featuredProducts = products.length > 0 
     ? products.filter(p => p.popular).slice(0, 4)
@@ -38,7 +41,10 @@ export const HomePage: React.FC<HomePageProps> = ({ products, onAddToCart, onNav
       <div id="products">
         <ProductGrid 
           products={featuredProducts}
+          cart={cart}
           onAddToCart={onAddToCart}
+          onUpdateQuantity={onUpdateQuantity}
+          onViewDetails={(productId) => onNavigate('product-detail', productId)}
           title="Our Dubai Chocolate Collection"
         />
       </div>

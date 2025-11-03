@@ -1,4 +1,4 @@
-// src/firebase/products.ts - Cleaned up unused imports
+// src/firebase/products.ts - Updated with multiple images support
 import { 
   collection, 
   addDoc, 
@@ -19,11 +19,12 @@ const convertDateToTimestamp = (date: Date): Timestamp => {
 };
 
 // Add a new product to Firebase
-export const addProductToFirebase = async (productData: ProductFormData): Promise<string> => {
+export const addProductToFirebase = async (productData: ProductFormData & { images?: string[] }): Promise<string> => {
   try {
     const docRef = await addDoc(collection(db, 'products'), {
       ...productData,
       rating: productData.rating ?? 5.0,
+      images: productData.images || [productData.image], // Store images array
       createdAt: convertDateToTimestamp(new Date()),
       updatedAt: convertDateToTimestamp(new Date()),
       isActive: true,
@@ -58,6 +59,7 @@ export const getProductsFromFirebase = async (): Promise<Product[]> => {
           description: data.description,
           price: data.price,
           image: data.image,
+          images: data.images || [data.image], // Include images array with fallback
           rating: data.rating || 5.0,
           popular: data.popular || false,
           category: data.category || 'Other',
@@ -74,12 +76,16 @@ export const getProductsFromFirebase = async (): Promise<Product[]> => {
 };
 
 // Update product in Firebase
-export const updateProductInFirebase = async (productId: string, productData: ProductFormData): Promise<void> => {
+export const updateProductInFirebase = async (
+  productId: string, 
+  productData: ProductFormData & { images?: string[] }
+): Promise<void> => {
   try {
     const productRef = doc(db, 'products', productId);
     await updateDoc(productRef, {
       ...productData,
       rating: productData.rating ?? 5.0,
+      images: productData.images || [productData.image], // Update images array
       updatedAt: convertDateToTimestamp(new Date())
     });
     console.log('Product updated in Firebase');

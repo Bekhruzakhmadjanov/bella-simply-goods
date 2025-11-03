@@ -1,4 +1,4 @@
-// src/App.tsx - Updated with review page route
+// src/App.tsx - Updated with cart and quantity management props
 
 import React, { useState, useCallback, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, useNavigate, useLocation } from 'react-router-dom';
@@ -6,6 +6,7 @@ import { BrowserRouter as Router, Routes, Route, useNavigate, useLocation } from
 // Backend Hooks
 import { useProducts, useOrders } from './hooks/useFirebaseData';
 import { useCart } from './hooks/useCart';
+import { useToast } from './hooks/useToast';
 
 // Email Service
 import { initializeEmailService } from './services/emailService';
@@ -30,19 +31,26 @@ import { CheckoutPage } from './pages/CheckoutPage';
 import { TrackingPage } from './pages/TrackingPage';
 import { ConfirmationPage } from './pages/ConfirmationPage';
 import { LeaveReviewPage } from './pages/LeaveReviewPage';
+import { ProductDetailPage } from './pages/ProductDetailPage';
+import { Toast } from './components/common/Toast';
 
 // Admin Components
 import { AdminApp } from './components/admin/AdminApp';
 
-// Navigation hook that syncs with router
-const useAppNavigation = () => {
+// Main App Content Component
+const AppContent: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
-
-  const navigateTo = useCallback((route: AppRoute | 'admin') => {
+  
+  const [currentOrder, setCurrentOrder] = useState<Order | null>(null);
+  const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
+  const { toasts, removeToast, success, error: showError } = useToast();
+  
+  const navigateTo = useCallback((route: AppRoute | 'admin', productId?: string) => {
     const pathMap = {
       home: '/',
       products: '/products',
+      'product-detail': '/product-detail',
       cart: '/cart',
       checkout: '/checkout',
       tracking: '/tracking',
@@ -50,6 +58,11 @@ const useAppNavigation = () => {
       'leave-review': '/leave-review',
       admin: '/admin'
     };
+    
+    if (route === 'product-detail' && productId) {
+      setSelectedProductId(productId);
+    }
+    
     navigate(pathMap[route] || '/');
   }, [navigate]);
 
@@ -57,6 +70,7 @@ const useAppNavigation = () => {
     const routeMap: Record<string, AppRoute | 'admin'> = {
       '/': 'home',
       '/products': 'products',
+      '/product-detail': 'product-detail',
       '/cart': 'cart',
       '/checkout': 'checkout',
       '/tracking': 'tracking',
@@ -67,13 +81,7 @@ const useAppNavigation = () => {
     return routeMap[location.pathname] || 'home';
   };
 
-  return { navigateTo, currentRoute: getCurrentRoute() };
-};
-
-// Main App Content Component
-const AppContent: React.FC = () => {
-  const { navigateTo, currentRoute } = useAppNavigation();
-  const [currentOrder, setCurrentOrder] = useState<Order | null>(null);
+  const currentRoute = getCurrentRoute();
   
   // Use enhanced backend hooks
   const {
@@ -114,21 +122,42 @@ const AppContent: React.FC = () => {
 
   const totals = { subtotal, tax, shipping, total };
 
-  // Enhanced add to cart with analytics
+  // Enhanced add to cart with analytics and toast notification
   const handleAddToCart = useCallback((product: Product) => {
     addToCart(product);
-    // Track product interaction
     incrementProductView(product.id);
-  }, [addToCart, incrementProductView]);
+    success(`${product.name} added to cart!`);
+  }, [addToCart, incrementProductView, success]);
+
+  // Handle quantity updates with toast notifications
+  const handleUpdateQuantity = useCallback((productId: string, newQuantity: number) => {
+    const product = products.find(p => p.id === productId);
+    const currentItem = cart.find(item => item.id === productId);
+    
+    if (newQuantity === 0 && currentItem) {
+      // Item being removed
+      success(`${product?.name} removed from cart`);
+    } else if (currentItem && newQuantity > currentItem.quantity) {
+      // Quantity increased
+      const diff = newQuantity - currentItem.quantity;
+      success(`Added ${diff} more ${product?.name} to cart`);
+    } else if (currentItem && newQuantity < currentItem.quantity) {
+      // Quantity decreased
+      const diff = currentItem.quantity - newQuantity;
+      success(`Removed ${diff} ${product?.name} from cart`);
+    }
+    
+    updateQuantity(productId, newQuantity);
+  }, [updateQuantity, products, cart, success]);
 
   // Admin product management functions with error handling
   const handleAddProduct = useCallback(async (productData: ProductFormData) => {
     try {
       await addProduct(productData);
       console.log('Product added successfully');
-    } catch (error) {
-      console.error('Failed to add product:', error);
-      throw error; // Re-throw to let the admin component handle it
+    } catch (err) {
+      console.error('Failed to add product:', err);
+      throw err;
     }
   }, [addProduct]);
 
@@ -136,9 +165,9 @@ const AppContent: React.FC = () => {
     try {
       await updateProduct(id, productData);
       console.log('Product updated successfully');
-    } catch (error) {
-      console.error('Failed to update product:', error);
-      throw error;
+    } catch (err) {
+      console.error('Failed to update product:', err);
+      throw err;
     }
   }, [updateProduct]);
 
@@ -146,9 +175,9 @@ const AppContent: React.FC = () => {
     try {
       await deleteProduct(id);
       console.log('Product deleted successfully');
-    } catch (error) {
-      console.error('Failed to delete product:', error);
-      throw error;
+    } catch (err) {
+      console.error('Failed to delete product:', err);
+      throw err;
     }
   }, [deleteProduct]);
 
@@ -156,9 +185,9 @@ const AppContent: React.FC = () => {
     try {
       await updateOrderStatus(orderId, updateData);
       console.log('Order status updated successfully');
-    } catch (error) {
-      console.error('Failed to update order status:', error);
-      throw error;
+    } catch (err) {
+      console.error('Failed to update order status:', err);
+      throw err;
     }
   }, [updateOrderStatus]);
 
@@ -174,20 +203,21 @@ const AppContent: React.FC = () => {
         estimatedDelivery: new Date(Date.now() + 4 * 24 * 60 * 60 * 1000)
       };
       
-      // Save to Firebase and send confirmation email
       const firebaseOrderId = await addOrder(newOrder);
       const orderWithFirebaseId = { ...newOrder, id: firebaseOrderId };
       
       setCurrentOrder(orderWithFirebaseId);
       clearCart();
       navigateTo('confirmation');
+      success('Order placed successfully!');
       
       console.log('Order placed successfully:', orderWithFirebaseId);
-    } catch (error) {
-      console.error('Failed to place order:', error);
-      throw error;
+    } catch (err) {
+      console.error('Failed to place order:', err);
+      showError('Failed to place order. Please try again.');
+      throw err;
     }
-  }, [cart, totals, clearCart, navigateTo, addOrder]);
+  }, [cart, totals, clearCart, navigateTo, addOrder, success, showError]);
 
   // Show loading spinner while initial data loads
   if (productsLoading) {
@@ -220,107 +250,146 @@ const AppContent: React.FC = () => {
   }
 
   return (
-    <Routes>
-      {/* Admin Route - No Layout */}
-      <Route 
-        path="/admin" 
-        element={
-          <AdminApp
-            products={products}
-            orders={orders}
-            onAddProduct={handleAddProduct}
-            onUpdateProduct={handleUpdateProduct}
-            onDeleteProduct={handleDeleteProduct}
-            onUpdateOrderStatus={handleUpdateOrderStatus}
-            onBackToStore={() => navigateTo('home')}
-          />
-        } 
-      />
+    <>
+      <Routes>
+        {/* Admin Route - No Layout */}
+        <Route 
+          path="/admin" 
+          element={
+            <AdminApp
+              products={products}
+              orders={orders}
+              onAddProduct={handleAddProduct}
+              onUpdateProduct={handleUpdateProduct}
+              onDeleteProduct={handleDeleteProduct}
+              onUpdateOrderStatus={handleUpdateOrderStatus}
+              onBackToStore={() => navigateTo('home')}
+            />
+          } 
+        />
+        
+        {/* All other routes - With Layout */}
+        <Route 
+          path="/*" 
+          element={
+            <Layout
+              onNavigate={navigateTo}
+              cartCount={cartTotal}
+              currentRoute={currentRoute as AppRoute}
+            >
+              <Routes>
+                <Route 
+                  path="/" 
+                  element={
+                    <HomePage 
+                      products={products}
+                      cart={cart}
+                      onAddToCart={handleAddToCart} 
+                      onUpdateQuantity={handleUpdateQuantity}
+                      onNavigate={navigateTo} 
+                    />
+                  } 
+                />
+                <Route 
+                  path="/products" 
+                  element={
+                    <ProductsPage 
+                      products={products}
+                      cart={cart}
+                      onAddToCart={handleAddToCart}
+                      onUpdateQuantity={handleUpdateQuantity}
+                      onNavigate={navigateTo}
+                    />
+                  } 
+                />
+                <Route 
+                  path="/product-detail" 
+                  element={
+                    <ProductDetailPage 
+                      productId={selectedProductId}
+                      products={products}
+                      onAddToCart={(product, qty) => {
+                        for (let i = 0; i < qty; i++) {
+                          addToCart(product);
+                        }
+                        incrementProductView(product.id);
+                        success(`${qty} × ${product.name} added to cart!`);
+                      }}
+                      onNavigate={navigateTo}
+                      onBuyNow={(product, qty) => {
+                        for (let i = 0; i < qty; i++) {
+                          addToCart(product);
+                        }
+                        navigateTo('checkout');
+                      }}
+                    />
+                  } 
+                />
+                <Route 
+                  path="/cart" 
+                  element={
+                    <CartPage 
+                      cart={cart}
+                      totals={totals}
+                      onUpdateQuantity={updateQuantity}
+                      onRemoveItem={removeItem}
+                      onNavigate={navigateTo}
+                    />
+                  } 
+                />
+                <Route 
+                  path="/checkout" 
+                  element={
+                    <CheckoutPage 
+                      cart={cart}
+                      totals={totals}
+                      onNavigate={navigateTo}
+                      onPlaceOrder={handlePlaceOrder}
+                    />
+                  } 
+                />
+                <Route 
+                  path="/tracking" 
+                  element={
+                    <TrackingPage 
+                      orders={orders}
+                      onNavigate={navigateTo} 
+                    />
+                  } 
+                />
+                <Route 
+                  path="/confirmation" 
+                  element={
+                    <ConfirmationPage 
+                      order={currentOrder} 
+                      onNavigate={navigateTo} 
+                    />
+                  } 
+                />
+                <Route 
+                  path="/leave-review" 
+                  element={
+                    <LeaveReviewPage 
+                      onNavigate={navigateTo} 
+                    />
+                  } 
+                />
+              </Routes>
+            </Layout>
+          } 
+        />
+      </Routes>
       
-      {/* All other routes - With Layout */}
-      <Route 
-        path="/*" 
-        element={
-          <Layout
-            onNavigate={navigateTo}
-            cartCount={cartTotal}
-            currentRoute={currentRoute as AppRoute}
-          >
-            <Routes>
-              <Route 
-                path="/" 
-                element={
-                  <HomePage 
-                    products={products}
-                    onAddToCart={handleAddToCart} 
-                    onNavigate={navigateTo} 
-                  />
-                } 
-              />
-              <Route 
-                path="/products" 
-                element={
-                  <ProductsPage 
-                    products={products}
-                    onAddToCart={handleAddToCart}
-                    onNavigate={navigateTo}
-                  />
-                } 
-              />
-              <Route 
-                path="/cart" 
-                element={
-                  <CartPage 
-                    cart={cart}
-                    totals={totals}
-                    onUpdateQuantity={updateQuantity}
-                    onRemoveItem={removeItem}
-                    onNavigate={navigateTo}
-                  />
-                } 
-              />
-              <Route 
-                path="/checkout" 
-                element={
-                  <CheckoutPage 
-                    cart={cart}
-                    totals={totals}
-                    onNavigate={navigateTo}
-                    onPlaceOrder={handlePlaceOrder}
-                  />
-                } 
-              />
-              <Route 
-                path="/tracking" 
-                element={
-                  <TrackingPage 
-                    orders={orders}
-                    onNavigate={navigateTo} 
-                  />
-                } 
-              />
-              <Route 
-                path="/confirmation" 
-                element={
-                  <ConfirmationPage 
-                    order={currentOrder} 
-                    onNavigate={navigateTo} 
-                  />
-                } 
-              />
-              <Route 
-                path="/leave-review" 
-                element={
-                  <LeaveReviewPage 
-                    onNavigate={navigateTo} 
-                  />
-                } 
-              />
-            </Routes>
-          </Layout>
-        } 
-      />
-    </Routes>
+      {/* Toast Notifications */}
+      {toasts.map(toast => (
+        <Toast
+          key={toast.id}
+          message={toast.message}
+          type={toast.type}
+          onClose={() => removeToast(toast.id)}
+        />
+      ))}
+    </>
   );
 };
 
